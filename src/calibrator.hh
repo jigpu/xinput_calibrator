@@ -65,7 +65,7 @@ protected:
     virtual bool finish_data(const XYinfo new_axys, int swap_xy) =0;
 
     // name of the device (driver)
-    const char* const device_name;
+    const char* device_name;
     // original axys values
     XYinfo old_axys;
     // be verbose or not
