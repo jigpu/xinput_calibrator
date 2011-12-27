@@ -80,8 +80,6 @@ AM_CONDITIONAL([BUILD_X11], [test "x$with_gui" = xx11])
 AC_SUBST(VERSION)
 
 AC_OUTPUT([Makefile
-           scripts/Makefile
            src/Makefile
            src/calibrator/Makefile
-           src/gui/Makefile
-           man/Makefile])
+           src/gui/Makefile])
