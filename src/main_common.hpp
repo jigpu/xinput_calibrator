@@ -97,7 +97,7 @@ char* my_strdup(const char* s) {
 
 // all need struct XYinfo, and some the consts too
 #include "calibrator.cpp"
-#include "calibrator/calibratorXorgPrint.cpp"
+#include "calibratorXorgPrint.cpp"
 
 
 /**

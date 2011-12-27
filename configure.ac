@@ -53,6 +53,4 @@ AC_SUBST(GTKMM_LIBS)
 AC_SUBST(VERSION)
 
 AC_OUTPUT([Makefile
-           src/Makefile
-           src/calibrator/Makefile
-           src/gui/Makefile])
+           src/Makefile])

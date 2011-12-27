@@ -24,10 +24,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-SUBDIRS = \
-	calibrator \
-	gui
-
 AM_CXXFLAGS = -Wall -ansi -pedantic -Wmissing-declarations
 
 bin_PROGRAMS = xinput_calibrator
@@ -44,3 +40,5 @@ EXTRA_DIST = \
 	calibrator.cpp \
 	calibrator.hh \
 	main_common.hpp
+	calibratorXorgPrint.cpp \
+	gui_gtkmm.cpp
