@@ -104,8 +104,6 @@ char* my_strdup(const char* s) {
 // all need struct XYinfo, and some the consts too
 #include "calibrator.cpp"
 #include "calibrator/calibratorXorgPrint.cpp"
-#include "calibrator/calibratorEvdev.cpp"
-#include "calibrator/calibratorUsbtouchscreen.cpp"
 
 
 /**
@@ -414,28 +412,6 @@ Calibrator* main_common(int argc, char** argv)
                 device_axys.x_min, device_axys.x_max,
                 device_axys.y_min, device_axys.y_max);
         }
-    }
-
-
-    // Different device/driver, different ways to apply the calibration values
-    try {
-        // try Usbtouchscreen driver
-        return new CalibratorUsbtouchscreen(device_name, device_axys,
-            verbose, thr_misclick, thr_doubleclick, output_type, geometry);
-
-    } catch(WrongCalibratorException& x) {
-        if (verbose)
-            printf("DEBUG: Not usbtouchscreen calibrator: %s\n", x.what());
-    }
-
-    try {
-        // next, try Evdev driver (with XID)
-        return new CalibratorEvdev(device_name, device_axys, verbose, device_id,
-            thr_misclick, thr_doubleclick, output_type, geometry);
-
-    } catch(WrongCalibratorException& x) {
-        if (verbose)
-            printf("DEBUG: Not evdev calibrator: %s\n", x.what());
     }
 
     // lastly, presume a standard Xorg driver (evtouch, mutouch, ...)
