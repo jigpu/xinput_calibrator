@@ -46,36 +46,9 @@ AC_SUBST(XINPUT_LIBS)
 PKG_CHECK_MODULES(XI_PROP, [xi >= 1.2] [inputproto >= 1.5],
 			AC_DEFINE(HAVE_XI_PROP, 1, [Xinput properties available]), foo="bar")
 
-
-AC_ARG_WITH([gui], AS_HELP_STRING([--with-gui=default], [Use gtkmm GUI if available, x11 GUI otherwise (default)]),,[with_gui=default])
-AC_ARG_WITH([gui], AS_HELP_STRING([--with-gui=gtkmm], [Use gtkmm GUI]))
-AC_ARG_WITH([gui], AS_HELP_STRING([--with-gui=x11], [Use native x11 GUI]))
-AC_MSG_CHECKING([gui])
-AC_MSG_RESULT($with_gui)
-
-AS_IF([test "x$with_gui" = xdefault || test "x$with_gui" = xgtkmm], [
-	PKG_CHECK_MODULES(GTKMM, [gtkmm-2.4], with_gui="gtkmm",
-        [if test "x$with_gui" = xgtkmm; then
-            AC_MSG_ERROR([GTKMM GUI requested, but gtkmm-2.4 not found])
-         fi])
-    AC_SUBST(GTKMM_CFLAGS)
-	AC_SUBST(GTKMM_LIBS)
-])
-AM_CONDITIONAL([BUILD_GTKMM], [test "x$with_gui" = xgtkmm])
-
-AS_IF([test "x$with_gui" = xdefault || test "x$with_gui" = xx11], [
-	PKG_CHECK_MODULES(X11, [x11], with_gui="x11", with_gui="no")
-    AC_SUBST(X11_CFLAGS)
-    AC_SUBST(X11_LIBS)
-
-    # check for xrandr too
-    PKG_CHECK_MODULES(XRANDR, [xrandr], AC_DEFINE(HAVE_X11_XRANDR, 1), foo="bar")
-    AC_SUBST(XRANDR_CFLAGS)
-    AC_SUBST(XRANDR_LIBS)
-])
-AM_CONDITIONAL([BUILD_X11], [test "x$with_gui" = xx11])
-
-
+PKG_CHECK_MODULES(GTKMM, [gtkmm-2.4],, AC_MSG_ERROR([GTKMM GUI requested, but gtkmm-2.4 not found]))
+AC_SUBST(GTKMM_CFLAGS)
+AC_SUBST(GTKMM_LIBS)
 
 AC_SUBST(VERSION)
 
