@@ -22,10 +22,7 @@
  */
 
 // Must be before Xlib stuff
-#include <gtkmm/main.h>
-#include <gtkmm/window.h>
-#include <gtkmm/drawingarea.h>
-#include <cairomm/context.h>
+#include <gtk/gtk.h>
 
 #include "main_common.hpp"
 #include "gui_gtkmm.cpp"
