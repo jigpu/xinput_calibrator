@@ -83,12 +83,6 @@ struct XYinfo {
          x_min(xmi), x_max(xma), y_min(ymi), y_max(yma) {}
 };
 
-class WrongCalibratorException : public std::invalid_argument {
-    public:
-        WrongCalibratorException(const std::string& msg = "") :
-            std::invalid_argument(msg) {}
-};
-
 // strdup: non-ansi
 char* my_strdup(const char* s);
 char* my_strdup(const char* s) {
