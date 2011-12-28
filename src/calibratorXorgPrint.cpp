@@ -34,7 +34,7 @@ bool output_hal(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_
 
 struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo& axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const OutputType output_type, const char* geometry)
 {
-    struct Calib* c = (struct Calib*)malloc(sizeof(struct Calib));
+    struct Calib* c = (struct Calib*)calloc(1, sizeof(struct Calib));
     c->device_name = device_name0;
     c->old_axys = axys0;
     c->verbose = verbose0;
