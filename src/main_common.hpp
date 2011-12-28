@@ -235,8 +235,8 @@ static void usage(char* cmd, unsigned thr_misclick)
     fprintf(stderr, "\t--geometry: manually provide the geometry (width and height) for the calibration window\n");
 }
 
-Calibrator* main_common(int argc, char** argv);
-Calibrator* main_common(int argc, char** argv)
+struct Calib* main_common(int argc, char** argv);
+struct Calib* main_common(int argc, char** argv)
 {
     bool verbose = false;
     bool list_devices = false;
@@ -409,6 +409,6 @@ Calibrator* main_common(int argc, char** argv)
     }
 
     // lastly, presume a standard Xorg driver (evtouch, mutouch, ...)
-    return new CalibratorXorgPrint(device_name, device_axys,
+    return CalibratorXorgPrint(device_name, device_axys,
             verbose, thr_misclick, thr_doubleclick, output_type, geometry);
 }

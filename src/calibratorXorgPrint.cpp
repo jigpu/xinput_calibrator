@@ -24,29 +24,34 @@
  * Class for generic Xorg driver,
  * outputs new Xorg.conf and FDI policy, on stdout
  ***************************************/
-class CalibratorXorgPrint: public Calibrator
-{
-public:
-    CalibratorXorgPrint(const char* const device_name, const XYinfo& axys,
-        const bool verbose, const int thr_misclick=0, const int thr_doubleclick=0,
-        const OutputType output_type=OUTYPE_AUTO, const char* geometry=0);
+struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo& axys,
+        const bool verbose, const int thr_misclick, const int thr_doubleclick,
+        const OutputType output_type, const char* geometry);
 
-    virtual bool finish_data(const XYinfo new_axys, int swap_xy);
-protected:
-    bool output_xorgconfd(const XYinfo new_axys, int swap_xy, int new_swap_xy);
-    bool output_hal(const XYinfo new_axys, int swap_xy, int new_swap_xy);
-};
+bool finish_data(struct Calib*, const XYinfo new_axys, int swap_xy);
+bool output_xorgconfd(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
+bool output_hal(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
 
-CalibratorXorgPrint::CalibratorXorgPrint(const char* const device_name0, const XYinfo& axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const OutputType output_type, const char* geometry)
-  : Calibrator(device_name0, axys0, verbose0, thr_misclick, thr_doubleclick, output_type, geometry)
+struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo& axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const OutputType output_type, const char* geometry)
 {
-    printf("Calibrating standard Xorg driver \"%s\"\n", device_name);
+    struct Calib* c = (struct Calib*)malloc(sizeof(struct Calib));
+    c->device_name = device_name0;
+    c->old_axys = axys0;
+    c->verbose = verbose0;
+    c->threshold_misclick = thr_misclick;
+    c->threshold_doubleclick = thr_doubleclick;
+    c->output_type = output_type;
+    c->geometry = geometry;
+
+    printf("Calibrating standard Xorg driver \"%s\"\n", c->device_name);
     printf("\tcurrent calibration values: min_x=%d, max_x=%d and min_y=%d, max_y=%d\n",
-                old_axys.x_min, old_axys.x_max, old_axys.y_min, old_axys.y_max);
+                c->old_axys.x_min, c->old_axys.x_max, c->old_axys.y_min, c->old_axys.y_max);
     printf("\tIf these values are estimated wrong, either supply it manually with the --precalib option, or run the 'get_precalib.sh' script to automatically get it (through HAL).\n");
+
+    return c;
 }
 
-bool CalibratorXorgPrint::finish_data(const XYinfo new_axys, int swap_xy)
+bool finish_data(struct Calib* c, const XYinfo new_axys, int swap_xy)
 {
     bool success = true;
 
@@ -55,20 +60,20 @@ bool CalibratorXorgPrint::finish_data(const XYinfo new_axys, int swap_xy)
     int new_swap_xy = swap_xy;
 
     printf("\n\n--> Making the calibration permanent <--\n");
-    switch (output_type) {
+    switch (c->output_type) {
         case OUTYPE_AUTO:
             // xorg.conf.d or alternatively hal config
-            if (has_xorgconfd_support()) {
-                success &= output_xorgconfd(new_axys, swap_xy, new_swap_xy);
+            if (has_xorgconfd_support(c)) {
+                success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
             } else {
-                success &= output_hal(new_axys, swap_xy, new_swap_xy);
+                success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
             }
             break;
         case OUTYPE_XORGCONFD:
-            success &= output_xorgconfd(new_axys, swap_xy, new_swap_xy);
+            success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
             break;
         case OUTYPE_HAL:
-            success &= output_hal(new_axys, swap_xy, new_swap_xy);
+            success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
             break;
         default:
             fprintf(stderr, "ERROR: XorgPrint Calibrator does not support the supplied --output-type\n");
@@ -78,9 +83,9 @@ bool CalibratorXorgPrint::finish_data(const XYinfo new_axys, int swap_xy)
     return success;
 }
 
-bool CalibratorXorgPrint::output_xorgconfd(const XYinfo new_axys, int swap_xy, int new_swap_xy)
+bool output_xorgconfd(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swap_xy)
 {
-    const char* sysfs_name = get_sysfs_name();
+    const char* sysfs_name = get_sysfs_name(c);
     bool not_sysfs_name = (sysfs_name == NULL);
     if (not_sysfs_name)
         sysfs_name = "!!Name_Of_TouchScreen!!";
@@ -104,9 +109,9 @@ bool CalibratorXorgPrint::output_xorgconfd(const XYinfo new_axys, int swap_xy, i
     return true;
 }
 
-bool CalibratorXorgPrint::output_hal(const XYinfo new_axys, int swap_xy, int new_swap_xy)
+bool output_hal(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swap_xy)
 {
-    const char* sysfs_name = get_sysfs_name();
+    const char* sysfs_name = get_sysfs_name(c);
     bool not_sysfs_name = (sysfs_name == NULL);
     if (not_sysfs_name)
         sysfs_name = "!!Name_Of_TouchScreen!!";

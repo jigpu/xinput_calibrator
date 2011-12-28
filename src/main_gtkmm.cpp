@@ -32,7 +32,7 @@
 
 int main(int argc, char** argv)
 {
-    Calibrator* calibrator = main_common(argc, argv);
+    struct Calib* calibrator = main_common(argc, argv);
 
     // GTK-mm setup
     Gtk::Main kit(argc, argv);
@@ -56,6 +56,6 @@ int main(int argc, char** argv)
     Gtk::Main::run(win);
 
     Gtk::Main::quit();
-    delete calibrator;
+    free(calibrator);
     return 0;
 }

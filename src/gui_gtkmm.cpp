@@ -55,11 +55,11 @@ const std::string help_text[help_lines] = {
 class CalibrationArea : public Gtk::DrawingArea
 {
 public:
-    CalibrationArea(Calibrator* w);
+    CalibrationArea(struct Calib* c);
 
 protected:
     // Data
-    Calibrator* calibrator;
+    struct Calib* calibrator;
     double X[4], Y[4];
     int display_width, display_height;
     int time_elapsed;
@@ -78,7 +78,7 @@ protected:
     void draw_message(const char* msg);
 };
 
-CalibrationArea::CalibrationArea(Calibrator* calibrator0)
+CalibrationArea::CalibrationArea(struct Calib* calibrator0)
   : calibrator(calibrator0), time_elapsed(0), message(NULL)
 {
     // Listen for mouse events
@@ -86,7 +86,7 @@ CalibrationArea::CalibrationArea(Calibrator* calibrator0)
     set_flags(Gtk::CAN_FOCUS);
 
     // parse geometry string
-    const char* geo = calibrator->get_geometry();
+    const char* geo = get_geometry(calibrator);
     if (geo != NULL) {
         int gw,gh;
         int res = sscanf(geo,"%dx%d",&gw,&gh);
@@ -118,13 +118,13 @@ void CalibrationArea::set_display_size(int width, int height) {
     X[LR] = display_width - delta_x - 1; Y[LR] = display_height - delta_y - 1;
 
     // reset calibration if already started
-    calibrator->reset();
+    reset(calibrator);
 }
 
 bool CalibrationArea::on_expose_event(GdkEventExpose *event)
 {
     // check that screensize did not change (if no manually specified geometry)
-    if (calibrator->get_geometry() == NULL &&
+    if (get_geometry(calibrator) == NULL &&
          (display_width != get_width() ||
          display_height != get_height()) ) {
         set_display_size(get_width(), get_height());
@@ -167,9 +167,9 @@ bool CalibrationArea::on_expose_event(GdkEventExpose *event)
         cr->stroke();
 
         // Draw the points
-        for (int i = 0; i <= calibrator->get_numclicks(); i++) {
+        for (int i = 0; i <= get_numclicks(calibrator); i++) {
             // set color: already clicked or not
-            if (i < calibrator->get_numclicks())
+            if (i < get_numclicks(calibrator))
                 cr->set_source_rgb(1.0, 1.0, 1.0);
             else
                 cr->set_source_rgb(0.8, 0.0, 0.0);
@@ -258,18 +258,18 @@ bool CalibrationArea::on_button_press_event(GdkEventButton *event)
 {
     // Handle click
     time_elapsed = 0;
-    bool success = calibrator->add_click((int)event->x_root, (int)event->y_root);
+    bool success = add_click(calibrator, (int)event->x_root, (int)event->y_root);
 
-    if (!success && calibrator->get_numclicks() == 0) {
+    if (!success && get_numclicks(calibrator) == 0) {
         draw_message("Mis-click detected, restarting...");
     } else {
         draw_message(NULL);
     }
 
     // Are we done yet?
-    if (calibrator->get_numclicks() >= 4) {
+    if (get_numclicks(calibrator) >= 4) {
         // Recalibrate
-        success = calibrator->finish(display_width, display_height);
+        success = finish(calibrator, display_width, display_height);
 
         if (success) {
             exit(0);
