@@ -29,6 +29,8 @@
 #include "calibrator.hpp"
 #include "gui_gtk.hpp"
 
+#define MAXIMUM(x,y) ((x) > (y) ? (x) : (y))
+
 // Timeout parameters
 const int time_step = 100;  // in milliseconds
 const int max_time = 15000; // 5000 = 5 sec
@@ -133,8 +135,8 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         cairo_text_extents_t extent;
         for (int i = 0; i != help_lines; i++) {
             cairo_text_extents(cr, help_text[i], &extent);
-            text_width = std::max(text_width, extent.width);
-            text_height = std::max(text_height, extent.height);
+            text_width = MAXIMUM(text_width, extent.width);
+            text_height = MAXIMUM(text_height, extent.height);
         }
         text_height += 2;
 

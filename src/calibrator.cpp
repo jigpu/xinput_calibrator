@@ -30,6 +30,8 @@
 
 #include "calibrator.hpp"
 
+#define SWAP(x,y)  do { int t; t=(x); x=(y); y=t; } while (0)
+
 void reset(struct Calib* c)
 {
 	c->num_clicks = 0;
@@ -138,8 +140,8 @@ bool finish(struct Calib* c, int width, int height)
     // Should x and y be swapped?
     const bool swap_xy = (abs (c->clicked_x [UL] - c->clicked_x [UR]) < abs (c->clicked_y [UL] - c->clicked_y [UR]));
     if (swap_xy) {
-        std::swap(c->clicked_x[LL], c->clicked_x[UR]);
-        std::swap(c->clicked_y[LL], c->clicked_y[UR]);
+        SWAP(c->clicked_x[LL], c->clicked_x[UR]);
+        SWAP(c->clicked_y[LL], c->clicked_y[UR]);
     }
 
     // Compute min/max coordinates.
@@ -164,8 +166,8 @@ bool finish(struct Calib* c, int width, int height)
 
     // If x and y has to be swapped we also have to swap the parameters
     if (swap_xy) {
-        std::swap(axys.x_min, axys.y_max);
-        std::swap(axys.y_min, axys.x_max);
+        SWAP(axys.x_min, axys.y_max);
+        SWAP(axys.y_min, axys.x_max);
     }
 
     // finish the data, driver/calibrator specific
