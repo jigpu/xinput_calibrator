@@ -190,7 +190,8 @@ bool is_sysfs_name(struct Calib* c, const char* name) {
     if (dp == NULL)
         return false;
 
-    while (dirent* ep = readdir(dp)) {
+    struct dirent *ep;
+    while (ep = readdir(dp)) {
         if (strncmp(ep->d_name, "event", strlen("event")) == 0) {
             /* got event name, get its sysfs device name */
             char filename[40]; /* actually 35, but hey... */
