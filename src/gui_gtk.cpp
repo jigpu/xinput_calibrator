@@ -29,6 +29,9 @@
 #include "gui_gtk.hpp"
 
 #define MAXIMUM(x,y) ((x) > (y) ? (x) : (y))
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327
+#endif
 
 /* Timeout parameters */
 const int time_step = 100;  /* in milliseconds */
