@@ -32,26 +32,6 @@ void reset(struct Calib* c)
 	c->num_clicks = 0;
 }
 
-void set_threshold_doubleclick(struct Calib* c, int t)
-{
-    c->threshold_doubleclick = t;
-}
-
-void set_threshold_misclick(struct Calib* c, int t)
-{
-    c->threshold_misclick = t;
-}
-
-int get_numclicks(struct Calib* c)
-{
-    return c->num_clicks;
-}
-
-const char* get_geometry(struct Calib* c)
-{
-    return c->geometry;
-}
-
 bool add_click(struct Calib* c, int x, int y)
 {
     /* Double-click detection */
@@ -128,7 +108,7 @@ bool along_axis(struct Calib* c, int xy, int x0, int y0)
 
 bool finish(struct Calib* c, int width, int height, XYinfo *new_axys, bool *swap)
 {
-    if (get_numclicks(c) != 4) {
+    if (c->num_clicks != 4) {
         return false;
     }
 

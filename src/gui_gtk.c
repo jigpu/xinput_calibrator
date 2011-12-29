@@ -69,7 +69,7 @@ struct CalibArea* CalibrationArea_(struct Calib* c)
     g_signal_connect(calib_area->drawing_area, "key-press-event", G_CALLBACK(on_key_press_event), calib_area);
 
     /* parse geometry string */
-    const char* geo = get_geometry(calib_area->calibrator);
+    const char* geo = calib_area->calibrator->geometry;
     if (geo != NULL) {
         int gw,gh;
         int res = sscanf(geo,"%dx%d",&gw,&gh);
@@ -116,7 +116,7 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
     /* check that screensize did not change (if no manually specified geometry) */
     int width  = calib_area->drawing_area->allocation.width;
     int height = calib_area->drawing_area->allocation.height;
-    if (get_geometry(calib_area->calibrator) == NULL &&
+    if (calib_area->calibrator->geometry == NULL &&
          (calib_area->display_width != width ||
          calib_area->display_height != height )) {
         set_display_size(calib_area, width, height);
@@ -161,9 +161,9 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         cairo_stroke(cr);
 
         /* Draw the points */
-        for (i = 0; i <= get_numclicks(calib_area->calibrator); i++) {
+        for (i = 0; i <= calib_area->calibrator->num_clicks; i++) {
             /* set color: already clicked or not */
-            if (i < get_numclicks(calib_area->calibrator))
+            if (i < calib_area->calibrator->num_clicks)
                 cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
             else
                 cairo_set_source_rgb(cr, 0.8, 0.0, 0.0);
@@ -262,14 +262,14 @@ bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer da
     calib_area->time_elapsed = 0;
     bool success = add_click(calib_area->calibrator, (int)event->x_root, (int)event->y_root);
 
-    if (!success && get_numclicks(calib_area->calibrator) == 0) {
+    if (!success && calib_area->calibrator->num_clicks == 0) {
         draw_message(calib_area, "Mis-click detected, restarting...");
     } else {
         draw_message(calib_area, NULL);
     }
 
     /* Are we done yet? */
-    if (get_numclicks(calib_area->calibrator) >= 4) {
+    if (calib_area->calibrator->num_clicks >= 4) {
         gtk_main_quit();
         return true;
     }

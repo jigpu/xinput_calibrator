@@ -116,18 +116,6 @@ struct Calib {
     const char* geometry;
 };
 
-/* set the doubleclick treshold */
-void set_threshold_doubleclick(struct Calib*, int t);
-
-/* set the misclick treshold */
-void set_threshold_misclick(struct Calib*, int t);
-
-/* get the number of clicks already registered */
-int get_numclicks(struct Calib*);
-
-/* return geometry string or NULL */
-const char* get_geometry(struct Calib*);
-
 /* reset clicks */
 void reset(struct Calib*);
 
