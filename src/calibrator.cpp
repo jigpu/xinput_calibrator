@@ -273,7 +273,7 @@ bool finish_data(struct Calib* c, const XYinfo new_axys, int swap_xy)
     switch (c->output_type) {
         case OUTYPE_AUTO:
             /* xorg.conf.d or alternatively hal config */
-            if (has_xorgconfd_support(c)) {
+            if (has_xorgconfd_support(c, NULL)) {
                 success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
             } else {
                 success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
