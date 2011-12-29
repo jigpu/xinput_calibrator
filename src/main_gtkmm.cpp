@@ -34,30 +34,28 @@ int main(int argc, char** argv)
 {
     struct Calib* calibrator = main_common(argc, argv);
 
-    // GTK-mm setup
-    Gtk::Main kit(argc, argv);
+    // GTK setup
+    gtk_init(&argc, &argv);
 
-    Glib::RefPtr< Gdk::Screen > screen = Gdk::Screen::get_default();
+    GdkScreen *screen = gdk_screen_get_default();
     //int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?
-    Gdk::Rectangle rect;
-    screen->get_monitor_geometry(0, rect);
+    GdkRectangle rect;
+    gdk_screen_get_monitor_geometry(screen, 0, &rect);
 
-    Gtk::Window win;
+    GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     // when no window manager: explicitely take size of full screen
-    win.move(rect.get_x(), rect.get_y());
-    win.resize(rect.get_width(), rect.get_height());
+    gtk_window_move(GTK_WINDOW(win), rect.x, rect.y);
+    gtk_window_set_default_size(GTK_WINDOW(win), rect.width, rect.height);
     // in case of window manager: set as full screen to hide window decorations
-    win.fullscreen();
+    gtk_window_fullscreen(GTK_WINDOW(win));
 
     struct CalibArea *calib_area = CalibrationArea_(calibrator);
-    Gtk::Widget *area = Glib::wrap(calib_area->drawing_area);
 
-    win.add(*area);
-    area->show();
+    gtk_container_add(GTK_CONTAINER(win), calib_area->drawing_area);
+    gtk_widget_show_all(win);
 
-    Gtk::Main::run(win);
+    gtk_main();
 
-    Gtk::Main::quit();
     free(calibrator);
     return 0;
 }
