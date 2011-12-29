@@ -411,3 +411,4 @@ struct Calib* main_common(int argc, char** argv)
     return CalibratorXorgPrint(device_name, device_axys,
             verbose, thr_misclick, thr_doubleclick, output_type, geometry);
 }
+

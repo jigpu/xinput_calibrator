@@ -49,9 +49,11 @@ int main(int argc, char** argv)
     // in case of window manager: set as full screen to hide window decorations
     win.fullscreen();
 
-    CalibrationArea area(calibrator);
-    win.add(area);
-    area.show();
+    struct CalibArea *calib_area = CalibrationArea_(calibrator);
+    Gtk::Widget *area = Glib::wrap(calib_area->drawing_area);
+
+    win.add(*area);
+    area->show();
 
     Gtk::Main::run(win);
 
