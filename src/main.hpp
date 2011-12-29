@@ -26,7 +26,7 @@
 
 #include "calibrator.hpp"
 
-// strdup: non-ansi
+/* strdup: non-ansi */
 char* my_strdup(const char* s);
 char* my_strdup(const char* s) {
     size_t len = strlen(s) + 1;

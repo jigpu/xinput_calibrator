@@ -55,7 +55,7 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
         exit(1);
     }
 
-    // verbose, get Xi version
+    /* verbose, get Xi version */
     if (verbose) {
         XExtensionVersion *version = XGetExtensionVersion(display, INAME);
 
@@ -67,7 +67,7 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
     }
 
     if (pre_device != NULL) {
-        // check whether the pre_device is an ID (only digits)
+        /* check whether the pre_device is an ID (only digits) */
         int len = strlen(pre_device);
         for (int loop=0; loop<len; loop++) {
 	        if (!isdigit(pre_device[loop])) {
@@ -85,16 +85,16 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
     slist=list=(XDeviceInfoPtr) XListInputDevices (display, &ndevices);
     for (int i=0; i<ndevices; i++, list++)
     {
-        if (list->use == IsXKeyboard || list->use == IsXPointer) // virtual master device
+        if (list->use == IsXKeyboard || list->use == IsXPointer) /* virtual master device */
             continue;
 
-        // if we are looking for a specific device
+        /* if we are looking for a specific device */
         if (pre_device != NULL) {
             if ((pre_device_is_id && list->id == (XID) atoi(pre_device)) ||
                 (!pre_device_is_id && strcmp(list->name, pre_device) == 0)) {
-                // OK, fall through
+                /* OK, fall through */
             } else {
-                // skip, not this device
+                /* skip, not this device */
                 continue;
             }
         }
@@ -177,10 +177,10 @@ struct Calib* main_common(int argc, char** argv)
     unsigned thr_doubleclick = 7;
     OutputType output_type = OUTYPE_AUTO;
 
-    // parse input
+    /* parse input */
     if (argc > 1) {
         for (int i=1; i!=argc; i++) {
-            // Display help ?
+            /* Display help ? */
             if (strcmp("-h", argv[i]) == 0 ||
                 strcmp("--help", argv[i]) == 0) {
                 fprintf(stderr, "xinput_calibratior, v%s\n\n", VERSION);
@@ -188,18 +188,18 @@ struct Calib* main_common(int argc, char** argv)
                 exit(0);
             } else
 
-            // Verbose output ?
+            /* Verbose output ? */
             if (strcmp("-v", argv[i]) == 0 ||
                 strcmp("--verbose", argv[i]) == 0) {
                 verbose = true;
             } else
 
-            // Just list devices ?
+            /* Just list devices ? */
             if (strcmp("--list", argv[i]) == 0) {
                 list_devices = true;
             } else
 
-            // Select specific device ?
+            /* Select specific device ? */
             if (strcmp("--device", argv[i]) == 0) {
                 if (argc > i+1)
                     pre_device = argv[++i];
@@ -210,7 +210,7 @@ struct Calib* main_common(int argc, char** argv)
                 }
             } else
 
-            // Get pre-calibration ?
+            /* Get pre-calibration ? */
             if (strcmp("--precalib", argv[i]) == 0) {
                 precalib = true;
                 if (argc > i+1)
@@ -223,7 +223,7 @@ struct Calib* main_common(int argc, char** argv)
                     pre_axys.y_max = atoi(argv[++i]);
             } else
 
-            // Get mis-click threshold ?
+            /* Get mis-click threshold ? */
             if (strcmp("--misclick", argv[i]) == 0) {
                 if (argc > i+1)
                     thr_misclick = atoi(argv[++i]);
@@ -234,10 +234,10 @@ struct Calib* main_common(int argc, char** argv)
                 }
             } else
 
-            // Get output type ?
+            /* Get output type ? */
             if (strcmp("--output-type", argv[i]) == 0) {
                 if (argc > i+1) {
-                    i++; // eat it or exit
+                    i++; /* eat it or exit */
                     if (strcmp("auto", argv[i]) == 0)
                         output_type = OUTYPE_AUTO;
                     else if (strcmp("xorg.conf.d", argv[i]) == 0)
@@ -258,18 +258,18 @@ struct Calib* main_common(int argc, char** argv)
                 }
             } else
 
-            // specify window geometry?
+            /* specify window geometry? */
             if (strcmp("--geometry", argv[i]) == 0) {
                 geometry = argv[++i];
-                //sscanf(argv[++i],"%dx%d",&win_width,&win_height);
+                /* sscanf(argv[++i],"%dx%d",&win_width,&win_height); */
             } else
 
-            // Fake calibratable device ?
+            /* Fake calibratable device ? */
             if (strcmp("--fake", argv[i]) == 0) {
                 fake = true;
             }
             
-            // unknown option
+            /* unknown option */
             else {
                 fprintf(stderr, "Unknown option: %s\n\n", argv[i]);
                 usage(argv[0], thr_misclick);
@@ -279,12 +279,12 @@ struct Calib* main_common(int argc, char** argv)
     }
     
 
-    // Choose the device to calibrate
+    /* Choose the device to calibrate */
     XID         device_id   = (XID) -1;
     const char* device_name = NULL;
     XYinfo      device_axys;
     if (fake) {
-        // Fake a calibratable device
+        /* Fake a calibratable device */
         device_name = "Fake_device";
         device_axys = XYinfo(0,1000,0,1000);
 
@@ -292,11 +292,11 @@ struct Calib* main_common(int argc, char** argv)
             printf("DEBUG: Faking device: %s\n", device_name);
         }
     } else {
-        // Find the right device
+        /* Find the right device */
         int nr_found = find_device(pre_device, verbose, list_devices, device_id, device_name, device_axys);
 
         if (list_devices) {
-            // printed the list in find_device
+            /* printed the list in find_device */
             if (nr_found == 0)
                 printf("No calibratable devices found.\n");
             exit(0);
@@ -318,7 +318,7 @@ struct Calib* main_common(int argc, char** argv)
         }
     }
 
-    // override min/max XY from command line ?
+    /* override min/max XY from command line ? */
     if (precalib) {
         if (pre_axys.x_min != -1)
             device_axys.x_min = pre_axys.x_min;
@@ -336,7 +336,7 @@ struct Calib* main_common(int argc, char** argv)
         }
     }
 
-    // lastly, presume a standard Xorg driver (evtouch, mutouch, ...)
+    /* lastly, presume a standard Xorg driver (evtouch, mutouch, ...) */
     return CalibratorXorgPrint(device_name, device_axys,
             verbose, thr_misclick, thr_doubleclick, output_type, geometry);
 }
@@ -345,19 +345,19 @@ int main(int argc, char** argv)
 {
     struct Calib* calibrator = main_common(argc, argv);
 
-    // GTK setup
+    /* GTK setup */
     gtk_init(&argc, &argv);
 
     GdkScreen *screen = gdk_screen_get_default();
-    //int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?
+    /*int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?*/
     GdkRectangle rect;
     gdk_screen_get_monitor_geometry(screen, 0, &rect);
 
     GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    // when no window manager: explicitely take size of full screen
+    /* when no window manager: explicitely take size of full screen */
     gtk_window_move(GTK_WINDOW(win), rect.x, rect.y);
     gtk_window_set_default_size(GTK_WINDOW(win), rect.width, rect.height);
-    // in case of window manager: set as full screen to hide window decorations
+    /* in case of window manager: set as full screen to hide window decorations */
     gtk_window_fullscreen(GTK_WINDOW(win));
 
     struct CalibArea *calib_area = CalibrationArea_(calibrator);

@@ -54,15 +54,15 @@
  */
 const int num_blocks = 8;
 
-// Names of the points
+/* Names of the points */
 enum {
-    UL = 0, // Upper-left
-    UR = 1, // Upper-right
-    LL = 2, // Lower-left
-    LR = 3  // Lower-right
+    UL = 0, /* Upper-left  */
+    UR = 1, /* Upper-right */
+    LL = 2, /* Lower-left  */
+    LR = 3  /* Lower-right */
 };
 
-// Output types
+/* Output types */
 enum OutputType {
     OUTYPE_AUTO,
     OUTYPE_XORGCONFD,
@@ -70,7 +70,7 @@ enum OutputType {
     OUTYPE_XINPUT
 };
 
-// struct to hold min/max info of the X and Y axis
+/* struct to hold min/max info of the X and Y axis */
 struct XYinfo {
     int x_min;
     int x_max;
@@ -82,69 +82,72 @@ struct XYinfo {
 };
 
 struct Calib {
-    // name of the device (driver)
+    /* name of the device (driver) */
     const char* device_name;
 
-    // original axys values
+    /* original axys values */
     XYinfo old_axys;
 
-    // be verbose or not
+    /* be verbose or not */
     bool verbose;
 
-    // nr of clicks registered
+    /* nr of clicks registered */
     int num_clicks;
 
-    // click coordinates
+    /* click coordinates */
     int clicked_x[4], clicked_y[4];
 
-    // Threshold to keep the same point from being clicked twice.
-    // Set to zero if you don't want this check
+    /* Threshold to keep the same point from being clicked twice.
+     * Set to zero if you don't want this check
+     */
     int threshold_doubleclick;
 
-    // Threshold to detect mis-clicks (clicks not along axes)
-    // A lower value forces more precise calibration
-    // Set to zero if you don't want this check
+    /* Threshold to detect mis-clicks (clicks not along axes)
+     * A lower value forces more precise calibration
+     * Set to zero if you don't want this check
+     */
     int threshold_misclick;
 
-    // Type of output
+    /* Type of output */
     OutputType output_type;
 
-    // manually specified geometry string
+    /* manually specified geometry string */
     const char* geometry;
 };
 
-// set the doubleclick treshold
+/* set the doubleclick treshold */
 void set_threshold_doubleclick(struct Calib*, int t);
 
-// set the misclick treshold
+/* set the misclick treshold */
 void set_threshold_misclick(struct Calib*, int t);
 
-// get the number of clicks already registered
+/* get the number of clicks already registered */
 int get_numclicks(struct Calib*);
 
-// return geometry string or NULL
+/* return geometry string or NULL */
 const char* get_geometry(struct Calib*);
 
-// reset clicks
+/* reset clicks */
 void reset(struct Calib*);
 
-// add a click with the given coordinates
+/* add a click with the given coordinates */
 bool add_click(struct Calib*, int x, int y);
 
-// calculate and apply the calibration
+/* calculate and apply the calibration */
 bool finish(struct Calib*, int width, int height);
 
-// get the sysfs name of the device,
-// returns NULL if it can not be found
+/* get the sysfs name of the device,
+ * returns NULL if it can not be found
+ */
 const char* get_sysfs_name(struct Calib*);
 
-// check whether the coordinates are along the respective axis
+/* check whether the coordinates are along the respective axis */
 bool along_axis(struct Calib*, int xy, int x0, int y0);
 
-// Check whether the given name is a sysfs device name
+/* Check whether the given name is a sysfs device name */
 bool is_sysfs_name(struct Calib*, const char* name);
 
-// Check whether the X server has xorg.conf.d support
+/* Check whether the X server has xorg.conf.d support */
 bool has_xorgconfd_support(struct Calib*, Display* display=NULL);
 
 struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo& axys,

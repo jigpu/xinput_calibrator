@@ -56,7 +56,7 @@ const char* get_geometry(struct Calib* c)
 
 bool add_click(struct Calib* c, int x, int y)
 {
-    // Double-click detection
+    /* Double-click detection */
     if (c->threshold_doubleclick > 0 && c->num_clicks > 0) {
         int i = c->num_clicks-1;
         while (i >= 0) {
@@ -72,24 +72,24 @@ bool add_click(struct Calib* c, int x, int y)
         }
     }
 
-    // Mis-click detection
+    /* Mis-click detection */
     if (c->threshold_misclick > 0 && c->num_clicks > 0) {
         bool misclick = true;
 
         if (c->num_clicks == 1) {
-            // check that along one axis of first point
+            /* check that along one axis of first point */
             if (along_axis(c, x,c->clicked_x[0],c->clicked_y[0]) ||
                 along_axis(c, y,c->clicked_x[0],c->clicked_y[0]))
                 misclick = false;
         } else if (c->num_clicks == 2) {
-            // check that along other axis of first point than second point
+            /* check that along other axis of first point than second point */
             if ((along_axis(c, y,c->clicked_x[0],c->clicked_y[0]) &&
                  along_axis(c, c->clicked_x[1],c->clicked_x[0],c->clicked_y[0])) ||
                 (along_axis(c, x,c->clicked_x[0],c->clicked_y[0]) &&
                  along_axis(c, c->clicked_y[1],c->clicked_x[0],c->clicked_y[0])))
                 misclick = false;
         } else if (c->num_clicks == 3) {
-            // check that along both axis of second and third point
+            /* check that along both axis of second and third point */
             if ((along_axis(c, x,c->clicked_x[1],c->clicked_y[1]) &&
                  along_axis(c, y,c->clicked_x[2],c->clicked_y[2])) ||
                 (along_axis(c, y,c->clicked_x[1],c->clicked_y[1]) &&
@@ -134,16 +134,16 @@ bool finish(struct Calib* c, int width, int height)
         return false;
     }
 
-    // Should x and y be swapped?
+    /* Should x and y be swapped? */
     const bool swap_xy = (abs (c->clicked_x [UL] - c->clicked_x [UR]) < abs (c->clicked_y [UL] - c->clicked_y [UR]));
     if (swap_xy) {
         SWAP(c->clicked_x[LL], c->clicked_x[UR]);
         SWAP(c->clicked_y[LL], c->clicked_y[UR]);
     }
 
-    // Compute min/max coordinates.
+    /* Compute min/max coordinates. */
     XYinfo axys;
-    // These are scaled using the values of old_axys
+    /* These are scaled using the values of old_axys */
     const float scale_x = (c->old_axys.x_max - c->old_axys.x_min)/(float)width;
     axys.x_min = ((c->clicked_x[UL] + c->clicked_x[LL]) * scale_x/2) + c->old_axys.x_min;
     axys.x_max = ((c->clicked_x[UR] + c->clicked_x[LR]) * scale_x/2) + c->old_axys.x_min;
@@ -151,8 +151,9 @@ bool finish(struct Calib* c, int width, int height)
     axys.y_min = ((c->clicked_y[UL] + c->clicked_y[UR]) * scale_y/2) + c->old_axys.y_min;
     axys.y_max = ((c->clicked_y[LL] + c->clicked_y[LR]) * scale_y/2) + c->old_axys.y_min;
 
-    // Add/subtract the offset that comes from not having the points in the
-    // corners (using the same coordinate system they are currently in)
+    /* Add/subtract the offset that comes from not having the points in the
+     * corners (using the same coordinate system they are currently in)
+     */
     const int delta_x = (axys.x_max - axys.x_min) / (float)(num_blocks - 2);
     axys.x_min -= delta_x;
     axys.x_max += delta_x;
@@ -161,13 +162,13 @@ bool finish(struct Calib* c, int width, int height)
     axys.y_max += delta_y;
 
 
-    // If x and y has to be swapped we also have to swap the parameters
+    /* If x and y has to be swapped we also have to swap the parameters */
     if (swap_xy) {
         SWAP(axys.x_min, axys.y_max);
         SWAP(axys.y_min, axys.x_max);
     }
 
-    // finish the data, driver/calibrator specific
+    /* finish the data, driver/calibrator specific */
     return finish_data(c, axys, swap_xy);
 }
 
@@ -176,7 +177,7 @@ const char* get_sysfs_name(struct Calib* c)
     if (is_sysfs_name(c, c->device_name))
         return c->device_name;
 
-    // TODO: more mechanisms
+    /* TODO: more mechanisms */
 
     return NULL;
 }
@@ -191,8 +192,8 @@ bool is_sysfs_name(struct Calib* c, const char* name) {
 
     while (dirent* ep = readdir(dp)) {
         if (strncmp(ep->d_name, "event", strlen("event")) == 0) {
-            // got event name, get its sysfs device name
-            char filename[40]; // actually 35, but hey...
+            /* got event name, get its sysfs device name */
+            char filename[40]; /* actually 35, but hey... */
             (void) sprintf(filename, "%s/%s/%s", SYSFS_INPUT, ep->d_name, SYSFS_DEVNAME);
 
             FILE *f = fopen(filename, "r");
@@ -221,7 +222,7 @@ bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
     bool has_support = false;
 
     Display* display = dpy;
-    if (dpy == NULL) // no connection to reuse
+    if (dpy == NULL) /* no connection to reuse */
         display = XOpenDisplay(NULL);
 
     if (display == NULL) {
@@ -234,7 +235,7 @@ bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
         has_support = true;
     }
 
-    if (dpy == NULL) // no connection to reuse
+    if (dpy == NULL) /* no connection to reuse */
         XCloseDisplay(display);
 
     return has_support;
@@ -263,14 +264,14 @@ bool finish_data(struct Calib* c, const XYinfo new_axys, int swap_xy)
 {
     bool success = true;
 
-    // we suppose the previous 'swap_xy' value was 0
-    // (unfortunately there is no way to verify this (yet))
+    /* we suppose the previous 'swap_xy' value was 0 */
+    /* (unfortunately there is no way to verify this (yet)) */
     int new_swap_xy = swap_xy;
 
     printf("\n\n--> Making the calibration permanent <--\n");
     switch (c->output_type) {
         case OUTYPE_AUTO:
-            // xorg.conf.d or alternatively hal config
+            /* xorg.conf.d or alternatively hal config */
             if (has_xorgconfd_support(c)) {
                 success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
             } else {
@@ -298,7 +299,7 @@ bool output_xorgconfd(struct Calib* c, const XYinfo new_axys, int swap_xy, int n
     if (not_sysfs_name)
         sysfs_name = "!!Name_Of_TouchScreen!!";
 
-    // xorg.conf.d snippet
+    /* xorg.conf.d snippet */
     printf("  copy the snippet below into '/etc/X11/xorg.conf.d/99-calibration.conf'\n");
     printf("Section \"InputClass\"\n");
     printf("	Identifier	\"calibration\"\n");
@@ -324,7 +325,7 @@ bool output_hal(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swa
     if (not_sysfs_name)
         sysfs_name = "!!Name_Of_TouchScreen!!";
 
-    // HAL policy output
+    /* HAL policy output */
     printf("  copy the policy below into '/etc/hal/fdi/policy/touchscreen.fdi'\n\
 <match key=\"info.product\" contains=\"%s\">\n\
   <merge key=\"input.x11_options.minx\" type=\"string\">%d</merge>\n\
