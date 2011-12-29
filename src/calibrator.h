@@ -24,8 +24,6 @@
 #ifndef _calibrator_h
 #define _calibrator_h
 
-#include <X11/Xlib.h>
-
 /*
  * Number of blocks. We partition the screen into 'num_blocks' x 'num_blocks'
  * rectangles of equal size. We then ask the user to press points that are
