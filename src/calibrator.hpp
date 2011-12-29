@@ -52,7 +52,7 @@
  *   |  |  |  |  |  |  |  |  |
  *   +--+--+--+--+--+--+--+--+
  */
-const int num_blocks = 8;
+#define NUM_BLOCKS 8
 
 /* Names of the points */
 enum {

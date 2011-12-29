@@ -154,10 +154,10 @@ bool finish(struct Calib* c, int width, int height)
     /* Add/subtract the offset that comes from not having the points in the
      * corners (using the same coordinate system they are currently in)
      */
-    const int delta_x = (axys.x_max - axys.x_min) / (float)(num_blocks - 2);
+    const int delta_x = (axys.x_max - axys.x_min) / (float)(NUM_BLOCKS - 2);
     axys.x_min -= delta_x;
     axys.x_max += delta_x;
-    const int delta_y = (axys.y_max - axys.y_min) / (float)(num_blocks - 2);
+    const int delta_y = (axys.y_max - axys.y_min) / (float)(NUM_BLOCKS - 2);
     axys.y_min -= delta_y;
     axys.y_max += delta_y;
 

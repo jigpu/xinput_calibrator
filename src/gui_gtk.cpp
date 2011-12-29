@@ -98,8 +98,8 @@ void set_display_size(struct CalibArea *calib_area, int width, int height) {
     calib_area->display_height = height;
 
     /* Compute absolute circle centers */
-    const int delta_x = calib_area->display_width/num_blocks;
-    const int delta_y = calib_area->display_height/num_blocks;
+    const int delta_x = calib_area->display_width/NUM_BLOCKS;
+    const int delta_y = calib_area->display_height/NUM_BLOCKS;
     calib_area->X[UL] = delta_x;                                 calib_area->Y[UL] = delta_y;
     calib_area->X[UR] = calib_area->display_width - delta_x - 1; calib_area->Y[UR] = delta_y;
     calib_area->X[LL] = delta_x;                                 calib_area->Y[LL] = calib_area->display_height - delta_y - 1;
