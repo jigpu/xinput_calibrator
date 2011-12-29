@@ -42,8 +42,8 @@ const int clock_line_width = 10;
 
 /* Text printed on screen */
 const int font_size = 16;
-const int help_lines = 4;
-const char *help_text[help_lines] = {
+#define HELP_LINES (sizeof help_text / sizeof help_text[0])
+const char *help_text[] = {
     "Touchscreen Calibration",
     "Press the point, use a stylus to increase precision.",
     "",
@@ -134,7 +134,7 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         double text_height = -1;
         double text_width = -1;
         cairo_text_extents_t extent;
-        for (i = 0; i != help_lines; i++) {
+        for (i = 0; i != HELP_LINES; i++) {
             cairo_text_extents(cr, help_text[i], &extent);
             text_width = MAXIMUM(text_width, extent.width);
             text_height = MAXIMUM(text_height, extent.height);
@@ -144,12 +144,12 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         double x = (calib_area->display_width - text_width) / 2;
         double y = (calib_area->display_height - text_height) / 2 - 60;
         cairo_set_line_width(cr, 2);
-        cairo_rectangle(cr, x - 10, y - (help_lines*text_height) - 10,
-                text_width + 20, (help_lines*text_height) + 20);
+        cairo_rectangle(cr, x - 10, y - (HELP_LINES*text_height) - 10,
+                text_width + 20, (HELP_LINES*text_height) + 20);
 
         /* Print help lines */
         y -= 3;
-        for (i = help_lines-1; i != -1; i--) {
+        for (i = HELP_LINES-1; i != -1; i--) {
             cairo_text_extents(cr, help_text[i], &extent);
             cairo_move_to(cr, x + (text_width-extent.width)/2, y);
             cairo_show_text(cr, help_text[i]);
