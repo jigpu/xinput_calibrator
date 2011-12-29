@@ -38,7 +38,7 @@
  * the data of the device is returned in the last 3 function parameters
  */
 int find_device(const char* pre_device, bool verbose, bool list_devices,
-        XID& device_id, const char*& device_name, XYinfo& device_axys)
+        XID* device_id, const char** device_name, XYinfo* device_axys)
 {
     bool pre_device_is_id = true;
     int found = 0;
@@ -124,15 +124,15 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
                 } else {
                     /* a calibratable device (has 2 axis valuators) */
                     found++;
-                    device_id = list->id;
-                    device_name = my_strdup(list->name);
-                    device_axys.x_min = ax[0].min_value;
-                    device_axys.x_max = ax[0].max_value;
-                    device_axys.y_min = ax[1].min_value;
-                    device_axys.y_max = ax[1].max_value;
+                    *device_id = list->id;
+                    *device_name = my_strdup(list->name);
+                    device_axys->x_min = ax[0].min_value;
+                    device_axys->x_max = ax[0].max_value;
+                    device_axys->y_min = ax[1].min_value;
+                    device_axys->y_max = ax[1].max_value;
 
                     if (list_devices)
-                        printf("Device \"%s\" id=%i\n", device_name, (int)device_id);
+                        printf("Device \"%s\" id=%i\n", *device_name, (int)*device_id);
                 }
 
             }
@@ -297,7 +297,7 @@ struct Calib* main_common(int argc, char** argv)
         }
     } else {
         /* Find the right device */
-        int nr_found = find_device(pre_device, verbose, list_devices, device_id, device_name, device_axys);
+        int nr_found = find_device(pre_device, verbose, list_devices, &device_id, &device_name, &device_axys);
 
         if (list_devices) {
             /* printed the list in find_device */
@@ -341,7 +341,7 @@ struct Calib* main_common(int argc, char** argv)
     }
 
     /* lastly, presume a standard Xorg driver (evtouch, mutouch, ...) */
-    return CalibratorXorgPrint(device_name, device_axys,
+    return CalibratorXorgPrint(device_name, &device_axys,
             verbose, thr_misclick, thr_doubleclick, output_type, geometry);
 }
 

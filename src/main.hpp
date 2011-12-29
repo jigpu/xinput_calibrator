@@ -38,7 +38,7 @@ char* my_strdup(const char* s) {
     return (char*) memcpy(p, s, len);
 }
 
-int find_device(const char*, bool, bool, XID&, const char*&, XYinfo&);
+int find_device(const char*, bool, bool, XID*, const char**, XYinfo*);
 
 static void usage(char* cmd, unsigned thr_misclick);
 

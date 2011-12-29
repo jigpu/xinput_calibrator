@@ -147,7 +147,7 @@ bool is_sysfs_name(struct Calib*, const char* name);
 /* Check whether the X server has xorg.conf.d support */
 bool has_xorgconfd_support(struct Calib*, Display* display);
 
-struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo& axys,
+struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo *axys,
         const bool verbose, const int thr_misclick, const int thr_doubleclick,
         const OutputType output_type, const char* geometry);
 
