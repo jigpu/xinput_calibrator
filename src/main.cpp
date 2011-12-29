@@ -25,79 +25,13 @@
 #include <stdlib.h>
 #include <stdexcept>
 
+#include <gtk/gtk.h>
+
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>
 
-/*
- * Number of blocks. We partition the screen into 'num_blocks' x 'num_blocks'
- * rectangles of equal size. We then ask the user to press points that are
- * located at the corner closes to the center of the four blocks in the corners
- * of the screen. The following ascii art illustrates the situation. We partition
- * the screen into 8 blocks in each direction. We then let the user press the
- * points marked with 'O'.
- *
- *   +--+--+--+--+--+--+--+--+
- *   |  |  |  |  |  |  |  |  |
- *   +--O--+--+--+--+--+--O--+
- *   |  |  |  |  |  |  |  |  |
- *   +--+--+--+--+--+--+--+--+
- *   |  |  |  |  |  |  |  |  |
- *   +--+--+--+--+--+--+--+--+
- *   |  |  |  |  |  |  |  |  |
- *   +--+--+--+--+--+--+--+--+
- *   |  |  |  |  |  |  |  |  |
- *   +--+--+--+--+--+--+--+--+
- *   |  |  |  |  |  |  |  |  |
- *   +--+--+--+--+--+--+--+--+
- *   |  |  |  |  |  |  |  |  |
- *   +--O--+--+--+--+--+--O--+
- *   |  |  |  |  |  |  |  |  |
- *   +--+--+--+--+--+--+--+--+
- */
-const int num_blocks = 8;
-
-// Names of the points
-enum {
-    UL = 0, // Upper-left
-    UR = 1, // Upper-right
-    LL = 2, // Lower-left
-    LR = 3  // Lower-right
-};
-
-// Output types
-enum OutputType {
-    OUTYPE_AUTO,
-    OUTYPE_XORGCONFD,
-    OUTYPE_HAL,
-    OUTYPE_XINPUT
-};
-
-// struct to hold min/max info of the X and Y axis
-struct XYinfo {
-    int x_min;
-    int x_max;
-    int y_min;
-    int y_max;
-    XYinfo() : x_min(-1), x_max(-1), y_min(-1), y_max(-1) {}
-    XYinfo(int xmi, int xma, int ymi, int yma) :
-         x_min(xmi), x_max(xma), y_min(ymi), y_max(yma) {}
-};
-
-// strdup: non-ansi
-char* my_strdup(const char* s);
-char* my_strdup(const char* s) {
-    size_t len = strlen(s) + 1;
-    void* p = malloc(len);
-
-    if (p == NULL)
-        return NULL;
-
-    return (char*) memcpy(p, s, len);
-}
-
-// all need struct XYinfo, and some the consts too
-#include "calibrator.cpp"
-
+#include "gui_gtk.hpp"
+#include "main.hpp"
 
 /**
  * find a calibratable touchscreen device (using XInput)
@@ -106,7 +40,6 @@ char* my_strdup(const char* s) {
  * retuns number of devices found,
  * the data of the device is returned in the last 3 function parameters
  */
-int find_device(const char*, bool, bool, XID&, const char*&, XYinfo&);
 int find_device(const char* pre_device, bool verbose, bool list_devices,
         XID& device_id, const char*& device_name, XYinfo& device_axys)
 {
@@ -234,7 +167,6 @@ static void usage(char* cmd, unsigned thr_misclick)
     fprintf(stderr, "\t--geometry: manually provide the geometry (width and height) for the calibration window\n");
 }
 
-struct Calib* main_common(int argc, char** argv);
 struct Calib* main_common(int argc, char** argv)
 {
     bool verbose = false;
@@ -412,3 +344,32 @@ struct Calib* main_common(int argc, char** argv)
             verbose, thr_misclick, thr_doubleclick, output_type, geometry);
 }
 
+int main(int argc, char** argv)
+{
+    struct Calib* calibrator = main_common(argc, argv);
+
+    // GTK setup
+    gtk_init(&argc, &argv);
+
+    GdkScreen *screen = gdk_screen_get_default();
+    //int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?
+    GdkRectangle rect;
+    gdk_screen_get_monitor_geometry(screen, 0, &rect);
+
+    GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    // when no window manager: explicitely take size of full screen
+    gtk_window_move(GTK_WINDOW(win), rect.x, rect.y);
+    gtk_window_set_default_size(GTK_WINDOW(win), rect.width, rect.height);
+    // in case of window manager: set as full screen to hide window decorations
+    gtk_window_fullscreen(GTK_WINDOW(win));
+
+    struct CalibArea *calib_area = CalibrationArea_(calibrator);
+
+    gtk_container_add(GTK_CONTAINER(win), calib_area->drawing_area);
+    gtk_widget_show_all(win);
+
+    gtk_main();
+
+    free(calibrator);
+    return 0;
+}

@@ -28,7 +28,7 @@ AM_CXXFLAGS = -Wall -ansi -pedantic -Wmissing-declarations
 
 bin_PROGRAMS = xinput_calibrator
 
-xinput_calibrator_SOURCES = main_gtkmm.cpp
+xinput_calibrator_SOURCES = main.cpp gui_gtk.cpp calibrator.cpp
 xinput_calibrator_LDADD = $(XINPUT_LIBS) $(GTK_LIBS)
 xinput_calibrator_CXXFLAGS = $(XINPUT_CFLAGS) $(GTK_CFLAGS) $(AM_CXXFLAGS)
 
@@ -37,8 +37,5 @@ xinput_calibrator_CXXFLAGS = $(XINPUT_CFLAGS) $(GTK_CFLAGS) $(AM_CXXFLAGS)
 xinput_calibrator_LDFLAGS = -Wl,--as-needed
 
 EXTRA_DIST = \
-	calibrator.cpp \
-	calibrator.hh \
-	main_common.hpp
-	calibratorXorgPrint.cpp \
-	gui_gtkmm.cpp
+	calibrator.hpp \
+	main.hpp

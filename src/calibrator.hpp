@@ -21,8 +21,65 @@
  * THE SOFTWARE.
  */
 
-#ifndef _calibrator_hh
-#define _calibrator_hh
+#ifndef _calibrator_hpp
+#define _calibrator_hpp
+
+#include <X11/Xlib.h>
+
+/*
+ * Number of blocks. We partition the screen into 'num_blocks' x 'num_blocks'
+ * rectangles of equal size. We then ask the user to press points that are
+ * located at the corner closes to the center of the four blocks in the corners
+ * of the screen. The following ascii art illustrates the situation. We partition
+ * the screen into 8 blocks in each direction. We then let the user press the
+ * points marked with 'O'.
+ *
+ *   +--+--+--+--+--+--+--+--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--O--+--+--+--+--+--O--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--+--+--+--+--+--+--+--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--+--+--+--+--+--+--+--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--+--+--+--+--+--+--+--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--+--+--+--+--+--+--+--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--+--+--+--+--+--+--+--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--O--+--+--+--+--+--O--+
+ *   |  |  |  |  |  |  |  |  |
+ *   +--+--+--+--+--+--+--+--+
+ */
+const int num_blocks = 8;
+
+// Names of the points
+enum {
+    UL = 0, // Upper-left
+    UR = 1, // Upper-right
+    LL = 2, // Lower-left
+    LR = 3  // Lower-right
+};
+
+// Output types
+enum OutputType {
+    OUTYPE_AUTO,
+    OUTYPE_XORGCONFD,
+    OUTYPE_HAL,
+    OUTYPE_XINPUT
+};
+
+// struct to hold min/max info of the X and Y axis
+struct XYinfo {
+    int x_min;
+    int x_max;
+    int y_min;
+    int y_max;
+    XYinfo() : x_min(-1), x_max(-1), y_min(-1), y_max(-1) {}
+    XYinfo(int xmi, int xma, int ymi, int yma) :
+         x_min(xmi), x_max(xma), y_min(ymi), y_max(yma) {}
+};
 
 struct Calib {
     // name of the device (driver)
@@ -89,5 +146,13 @@ bool is_sysfs_name(struct Calib*, const char* name);
 
 // Check whether the X server has xorg.conf.d support
 bool has_xorgconfd_support(struct Calib*, Display* display=NULL);
+
+struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo& axys,
+        const bool verbose, const int thr_misclick, const int thr_doubleclick,
+        const OutputType output_type, const char* geometry);
+
+bool finish_data(struct Calib*, const XYinfo new_axys, int swap_xy);
+bool output_xorgconfd(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
+bool output_hal(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
 
 #endif

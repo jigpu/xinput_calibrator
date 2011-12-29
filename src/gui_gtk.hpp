@@ -21,38 +21,32 @@
  * THE SOFTWARE.
  */
 
-// Must be before Xlib stuff
+#ifndef _gui_gtk_hpp
+#define _gui_gtk_hpp
+
 #include <gtk/gtk.h>
 
-#include "main_common.hpp"
-#include "gui_gtkmm.cpp"
+#include "calibrator.hpp"
 
-int main(int argc, char** argv)
+struct CalibArea
 {
-    struct Calib* calibrator = main_common(argc, argv);
+    struct Calib* calibrator;
+    double X[4], Y[4];
+    int display_width, display_height;
+    int time_elapsed;
 
-    // GTK setup
-    gtk_init(&argc, &argv);
+    const char* message;
 
-    GdkScreen *screen = gdk_screen_get_default();
-    //int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?
-    GdkRectangle rect;
-    gdk_screen_get_monitor_geometry(screen, 0, &rect);
+    GtkWidget *drawing_area;
+};
 
-    GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    // when no window manager: explicitely take size of full screen
-    gtk_window_move(GTK_WINDOW(win), rect.x, rect.y);
-    gtk_window_set_default_size(GTK_WINDOW(win), rect.width, rect.height);
-    // in case of window manager: set as full screen to hide window decorations
-    gtk_window_fullscreen(GTK_WINDOW(win));
+struct CalibArea* CalibrationArea_(struct Calib* c);
+void set_display_size(struct CalibArea *calib_area, int width, int height);
+bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data);
+void redraw(struct CalibArea *calib_area);
+bool on_timer_signal(struct CalibArea *calib_area);
+bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data);
+void draw_message(struct CalibArea *calib_area, const char* msg);
+bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data);
 
-    struct CalibArea *calib_area = CalibrationArea_(calibrator);
-
-    gtk_container_add(GTK_CONTAINER(win), calib_area->drawing_area);
-    gtk_widget_show_all(win);
-
-    gtk_main();
-
-    free(calibrator);
-    return 0;
-}
+#endif

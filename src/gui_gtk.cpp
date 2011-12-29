@@ -23,9 +23,11 @@
 #include <gtk/gtk.h>
 #include <cairo.h>
 #include <math.h>
+#include <stdlib.h>
+#include <algorithm>
 
-#include "calibrator.hh"
-
+#include "calibrator.hpp"
+#include "gui_gtk.hpp"
 
 // Timeout parameters
 const int time_step = 100;  // in milliseconds
@@ -45,29 +47,6 @@ const char *help_text[help_lines] = {
     "Press the point, use a stylus to increase precision.",
     "",
     "(To abort, press any key or wait)"
-};
-
-
-struct CalibArea* CalibrationArea_(struct Calib* c);
-void set_display_size(CalibArea *calib_area, int width, int height);
-bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data);
-void redraw(CalibArea *calib_area);
-bool on_timer_signal(CalibArea *calib_area);
-bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data);
-void draw_message(CalibArea *calib_area, const char* msg);
-bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data);
-
-
-struct CalibArea
-{
-    struct Calib* calibrator;
-    double X[4], Y[4];
-    int display_width, display_height;
-    int time_elapsed;
-
-    const char* message;
-
-    GtkWidget *drawing_area;
 };
 
 struct CalibArea* CalibrationArea_(struct Calib* c)
