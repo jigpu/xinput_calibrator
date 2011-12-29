@@ -122,7 +122,7 @@ bool add_click(struct Calib* c, int x, int y)
     return true;
 }
 
-inline bool along_axis(struct Calib* c, int xy, int x0, int y0)
+bool along_axis(struct Calib* c, int xy, int x0, int y0)
 {
     return ((abs(xy - x0) <= c->threshold_misclick) ||
             (abs(xy - y0) <= c->threshold_misclick));
