@@ -27,6 +27,7 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <stdio.h>
 
 #include "calibrator.hpp"
 
@@ -198,18 +199,17 @@ bool is_sysfs_name(struct Calib* c, const char* name) {
             char filename[40]; // actually 35, but hey...
             (void) sprintf(filename, "%s/%s/%s", SYSFS_INPUT, ep->d_name, SYSFS_DEVNAME);
 
-            std::ifstream ifile(filename);
-            if (ifile.is_open()) {
-                if (!ifile.eof()) {
-                    std::string devname;
-                    std::getline(ifile, devname);
-                    if (devname == name) {
-                        if (c->verbose)
-                            printf("DEBUG: Found that '%s' is a sysfs name.\n", name);
-                        return true;
-                    }
+            FILE *f = fopen(filename, "r");
+            if (f != NULL) {
+                int match = 0;
+                char devname[100];
+                match = fscanf(f, "%s", &devname);
+                if (match == 1 && strcmp(devname, name) == 0) {
+                    if (c->verbose)
+                        printf("DEBUG: Found that '%s' is a sysfs name.\n", name);
+                    return true;
                 }
-                ifile.close();
+                fclose(f);
             }
         }
     }
