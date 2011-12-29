@@ -21,12 +21,12 @@
  * THE SOFTWARE.
  */
 
-#ifndef _gui_gtk_hpp
-#define _gui_gtk_hpp
+#ifndef _gui_gtk_h
+#define _gui_gtk_h
 
 #include <gtk/gtk.h>
 
-#include "calibrator.hpp"
+#include "calibrator.h"
 
 struct CalibArea
 {

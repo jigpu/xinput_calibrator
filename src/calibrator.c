@@ -25,7 +25,7 @@
 #include <dirent.h>
 #include <string.h>
 
-#include "calibrator.hpp"
+#include "calibrator.h"
 
 #define SWAP(x,y)  do { int t; t=(x); x=(y); y=t; } while (0)
 

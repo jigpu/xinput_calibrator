@@ -25,8 +25,8 @@
 #include <gtk/gtk.h>
 #include <cairo.h>
 
-#include "calibrator.hpp"
-#include "gui_gtk.hpp"
+#include "calibrator.h"
+#include "gui_gtk.h"
 
 #define MAXIMUM(x,y) ((x) > (y) ? (x) : (y))
 #ifndef M_PI

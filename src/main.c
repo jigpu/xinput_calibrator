@@ -27,8 +27,8 @@
 
 #include <X11/extensions/XInput.h>
 
-#include "gui_gtk.hpp"
-#include "main.hpp"
+#include "gui_gtk.h"
+#include "main.h"
 
 /**
  * find a calibratable touchscreen device (using XInput)
@@ -106,7 +106,7 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
         for (j=0; j<list->num_classes; j++)
         {
 
-            if (any->c_class == ValuatorClass)
+            if (any->class == ValuatorClass)
             {
                 XValuatorInfoPtr V = (XValuatorInfoPtr) any;
                 XAxisInfoPtr ax = (XAxisInfoPtr) V->axes;

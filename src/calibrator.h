@@ -21,8 +21,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef _calibrator_hpp
-#define _calibrator_hpp
+#ifndef _calibrator_h
+#define _calibrator_h
 
 #include <X11/Xlib.h>
 
@@ -77,6 +77,12 @@ typedef struct {
     int y_min;
     int y_max;
 } XYinfo;
+
+typedef enum
+{
+    false = 0,
+    true  = 1
+} bool;
 
 struct Calib {
     /* name of the device (driver) */

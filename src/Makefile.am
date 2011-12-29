@@ -24,18 +24,18 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-AM_CXXFLAGS = -Wall -ansi -pedantic -Wmissing-declarations
+AM_CFLAGS = -Wall -ansi -pedantic -Wmissing-declarations
 
 bin_PROGRAMS = xinput_calibrator
 
-xinput_calibrator_SOURCES = main.cpp gui_gtk.cpp calibrator.cpp
+xinput_calibrator_SOURCES = main.c gui_gtk.c calibrator.c
 xinput_calibrator_LDADD = $(XINPUT_LIBS) $(GTK_LIBS)
-xinput_calibrator_CXXFLAGS = $(XINPUT_CFLAGS) $(GTK_CFLAGS) $(AM_CXXFLAGS)
+xinput_calibrator_CFLAGS = $(XINPUT_CFLAGS) $(GTK_CFLAGS) $(AM_CFLAGS)
 
 # only include the needed gtkmm stuff
 # lets hope this has no side-effects
 xinput_calibrator_LDFLAGS = -Wl,--as-needed
 
 EXTRA_DIST = \
-	calibrator.hpp \
-	main.hpp
+	calibrator.h \
+	main.h

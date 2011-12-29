@@ -21,10 +21,10 @@
  * THE SOFTWARE.
  */
 
-#ifndef _main_hpp
-#define _main_hpp
+#ifndef _main_h
+#define _main_h
 
-#include "calibrator.hpp"
+#include "calibrator.h"
 
 /* strdup: non-ansi */
 char* my_strdup(const char* s);
