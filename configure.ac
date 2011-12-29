@@ -46,7 +46,7 @@ AC_SUBST(XINPUT_LIBS)
 PKG_CHECK_MODULES(XI_PROP, [xi >= 1.2] [inputproto >= 1.5],
 			AC_DEFINE(HAVE_XI_PROP, 1, [Xinput properties available]), foo="bar")
 
-PKG_CHECK_MODULES(GTKMM, [gtkmm-2.4],, AC_MSG_ERROR([GTKMM GUI requested, but gtkmm-2.4 not found]))
+PKG_CHECK_MODULES(GTK, [gtk+-2.0],, AC_MSG_ERROR([GTK GUI required, but gtk+-2.0 not found]))
 AC_SUBST(GTKMM_CFLAGS)
 AC_SUBST(GTKMM_LIBS)
 
