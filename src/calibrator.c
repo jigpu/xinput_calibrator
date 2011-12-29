@@ -22,7 +22,6 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include <dirent.h>
 #include <string.h>
 
 #include "calibrator.h"
@@ -128,7 +127,7 @@ bool along_axis(struct Calib* c, int xy, int x0, int y0)
             (abs(xy - y0) <= c->threshold_misclick));
 }
 
-bool finish(struct Calib* c, int width, int height)
+bool finish(struct Calib* c, int width, int height, XYinfo *new_axys, bool *swap)
 {
     if (get_numclicks(c) != 4) {
         return false;
@@ -168,178 +167,8 @@ bool finish(struct Calib* c, int width, int height)
         SWAP(axys.y_min, axys.x_max);
     }
 
-    /* finish the data, driver/calibrator specific */
-    return finish_data(c, axys, swap_xy);
-}
-
-const char* get_sysfs_name(struct Calib* c)
-{
-    if (is_sysfs_name(c, c->device_name))
-        return c->device_name;
-
-    /* TODO: more mechanisms */
-
-    return NULL;
-}
-
-bool is_sysfs_name(struct Calib* c, const char* name) {
-    const char* SYSFS_INPUT="/sys/class/input";
-    const char* SYSFS_DEVNAME="device/name";
-
-    DIR* dp = opendir(SYSFS_INPUT);
-    if (dp == NULL)
-        return false;
-
-    struct dirent *ep;
-    while (ep = readdir(dp)) {
-        if (strncmp(ep->d_name, "event", strlen("event")) == 0) {
-            /* got event name, get its sysfs device name */
-            char filename[40]; /* actually 35, but hey... */
-            (void) sprintf(filename, "%s/%s/%s", SYSFS_INPUT, ep->d_name, SYSFS_DEVNAME);
-
-            FILE *f = fopen(filename, "r");
-            if (f != NULL) {
-                int match = 0;
-                char devname[100];
-                match = fscanf(f, "%s", &devname);
-                if (match == 1 && strcmp(devname, name) == 0) {
-                    if (c->verbose)
-                        printf("DEBUG: Found that '%s' is a sysfs name.\n", name);
-                    return true;
-                }
-                fclose(f);
-            }
-        }
-    }
-    (void) closedir(dp);
-
-    if (c->verbose)
-        printf("DEBUG: Name '%s' does not match any in '%s/event*/%s'\n",
-                    name, SYSFS_INPUT, SYSFS_DEVNAME);
-    return false;
-}
-
-bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
-    bool has_support = false;
-
-    Display* display = dpy;
-    if (dpy == NULL) /* no connection to reuse */
-        display = XOpenDisplay(NULL);
-
-    if (display == NULL) {
-        fprintf(stderr, "Unable to connect to X server\n");
-        exit(1);
-    }
-
-    if (strstr(ServerVendor(display), "X.Org") &&
-        VendorRelease(display) >= 10800000) {
-        has_support = true;
-    }
-
-    if (dpy == NULL) /* no connection to reuse */
-        XCloseDisplay(display);
-
-    return has_support;
-}
-
-struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const OutputType output_type, const char* geometry)
-{
-    struct Calib* c = (struct Calib*)calloc(1, sizeof(struct Calib));
-    c->device_name = device_name0;
-    c->old_axys = *axys0;
-    c->verbose = verbose0;
-    c->threshold_misclick = thr_misclick;
-    c->threshold_doubleclick = thr_doubleclick;
-    c->output_type = output_type;
-    c->geometry = geometry;
-
-    printf("Calibrating standard Xorg driver \"%s\"\n", c->device_name);
-    printf("\tcurrent calibration values: min_x=%d, max_x=%d and min_y=%d, max_y=%d\n",
-                c->old_axys.x_min, c->old_axys.x_max, c->old_axys.y_min, c->old_axys.y_max);
-    printf("\tIf these values are estimated wrong, either supply it manually with the --precalib option, or run the 'get_precalib.sh' script to automatically get it (through HAL).\n");
-
-    return c;
-}
-
-bool finish_data(struct Calib* c, const XYinfo new_axys, int swap_xy)
-{
-    bool success = true;
-
-    /* we suppose the previous 'swap_xy' value was 0 */
-    /* (unfortunately there is no way to verify this (yet)) */
-    int new_swap_xy = swap_xy;
-
-    printf("\n\n--> Making the calibration permanent <--\n");
-    switch (c->output_type) {
-        case OUTYPE_AUTO:
-            /* xorg.conf.d or alternatively hal config */
-            if (has_xorgconfd_support(c, NULL)) {
-                success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
-            } else {
-                success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
-            }
-            break;
-        case OUTYPE_XORGCONFD:
-            success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
-            break;
-        case OUTYPE_HAL:
-            success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
-            break;
-        default:
-            fprintf(stderr, "ERROR: XorgPrint Calibrator does not support the supplied --output-type\n");
-            success = false;
-    }
-
-    return success;
-}
-
-bool output_xorgconfd(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swap_xy)
-{
-    const char* sysfs_name = get_sysfs_name(c);
-    bool not_sysfs_name = (sysfs_name == NULL);
-    if (not_sysfs_name)
-        sysfs_name = "!!Name_Of_TouchScreen!!";
-
-    /* xorg.conf.d snippet */
-    printf("  copy the snippet below into '/etc/X11/xorg.conf.d/99-calibration.conf'\n");
-    printf("Section \"InputClass\"\n");
-    printf("	Identifier	\"calibration\"\n");
-    printf("	MatchProduct	\"%s\"\n", sysfs_name);
-    printf("	Option	\"MinX\"	\"%d\"\n", new_axys.x_min);
-    printf("	Option	\"MaxX\"	\"%d\"\n", new_axys.x_max);
-    printf("	Option	\"MinY\"	\"%d\"\n", new_axys.y_min);
-    printf("	Option	\"MaxY\"	\"%d\"\n", new_axys.y_max);
-    if (swap_xy != 0)
-        printf("	Option	\"SwapXY\"	\"%d\" # unless it was already set to 1\n", new_swap_xy);
-    printf("EndSection\n");
-
-    if (not_sysfs_name)
-        printf("\nChange '%s' to your device's name in the config above.\n", sysfs_name);
-
-    return true;
-}
-
-bool output_hal(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swap_xy)
-{
-    const char* sysfs_name = get_sysfs_name(c);
-    bool not_sysfs_name = (sysfs_name == NULL);
-    if (not_sysfs_name)
-        sysfs_name = "!!Name_Of_TouchScreen!!";
-
-    /* HAL policy output */
-    printf("  copy the policy below into '/etc/hal/fdi/policy/touchscreen.fdi'\n\
-<match key=\"info.product\" contains=\"%s\">\n\
-  <merge key=\"input.x11_options.minx\" type=\"string\">%d</merge>\n\
-  <merge key=\"input.x11_options.maxx\" type=\"string\">%d</merge>\n\
-  <merge key=\"input.x11_options.miny\" type=\"string\">%d</merge>\n\
-  <merge key=\"input.x11_options.maxy\" type=\"string\">%d</merge>\n"
-     , sysfs_name, new_axys.x_min, new_axys.x_max, new_axys.y_min, new_axys.y_max);
-    if (swap_xy != 0)
-        printf("  <merge key=\"input.x11_options.swapxy\" type=\"string\">%d</merge>\n", new_swap_xy);
-    printf("</match>\n");
-
-    if (not_sysfs_name)
-        printf("\nChange '%s' to your device's name in the config above.\n", sysfs_name);
+    *new_axys = axys;
+    *swap = swap_xy;
 
     return true;
 }

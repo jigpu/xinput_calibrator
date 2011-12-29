@@ -299,7 +299,7 @@ bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data)
  * the calibration will be calculated (if possible) and this function
  * will then return ('true' if successful, 'false' otherwise).
  */
-bool run_gui(struct Calib* c)
+bool run_gui(struct Calib* c, XYinfo *new_axys, bool *swap)
 {
     GdkScreen *screen = gdk_screen_get_default();
     /*int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?*/
@@ -320,6 +320,6 @@ bool run_gui(struct Calib* c)
 
     gtk_main();
 
-    return finish(calib_area->calibrator, calib_area->display_width, calib_area->display_height);
+    return finish(calib_area->calibrator, calib_area->display_width, calib_area->display_height, new_axys, swap);
 }
 

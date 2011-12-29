@@ -137,28 +137,9 @@ void reset(struct Calib*);
 bool add_click(struct Calib*, int x, int y);
 
 /* calculate and apply the calibration */
-bool finish(struct Calib*, int width, int height);
-
-/* get the sysfs name of the device,
- * returns NULL if it can not be found
- */
-const char* get_sysfs_name(struct Calib*);
+bool finish(struct Calib*, int width, int height, XYinfo *new_axys, bool *swap);
 
 /* check whether the coordinates are along the respective axis */
 bool along_axis(struct Calib*, int xy, int x0, int y0);
-
-/* Check whether the given name is a sysfs device name */
-bool is_sysfs_name(struct Calib*, const char* name);
-
-/* Check whether the X server has xorg.conf.d support */
-bool has_xorgconfd_support(struct Calib*, Display* display);
-
-struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo *axys,
-        const bool verbose, const int thr_misclick, const int thr_doubleclick,
-        const OutputType output_type, const char* geometry);
-
-bool finish_data(struct Calib*, const XYinfo new_axys, int swap_xy);
-bool output_xorgconfd(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
-bool output_hal(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
 
 #endif
