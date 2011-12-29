@@ -69,7 +69,8 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
     if (pre_device != NULL) {
         /* check whether the pre_device is an ID (only digits) */
         int len = strlen(pre_device);
-        for (int loop=0; loop<len; loop++) {
+        int loop;
+        for (loop=0; loop<len; loop++) {
 	        if (!isdigit(pre_device[loop])) {
 	            pre_device_is_id = false;
 	            break;
@@ -83,7 +84,8 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
     int ndevices;
     XDeviceInfoPtr list, slist;
     slist=list=(XDeviceInfoPtr) XListInputDevices (display, &ndevices);
-    for (int i=0; i<ndevices; i++, list++)
+    int i;
+    for (i=0; i<ndevices; i++, list++)
     {
         if (list->use == IsXKeyboard || list->use == IsXPointer) /* virtual master device */
             continue;
@@ -100,7 +102,8 @@ int find_device(const char* pre_device, bool verbose, bool list_devices,
         }
 
         XAnyClassPtr any = (XAnyClassPtr) (list->inputclassinfo);
-        for (int j=0; j<list->num_classes; j++)
+        int j;
+        for (j=0; j<list->num_classes; j++)
         {
 
             if (any->c_class == ValuatorClass)
@@ -179,7 +182,8 @@ struct Calib* main_common(int argc, char** argv)
 
     /* parse input */
     if (argc > 1) {
-        for (int i=1; i!=argc; i++) {
+        int i;
+        for (i=1; i!=argc; i++) {
             /* Display help ? */
             if (strcmp("-h", argv[i]) == 0 ||
                 strcmp("--help", argv[i]) == 0) {

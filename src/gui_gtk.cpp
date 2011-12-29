@@ -121,6 +121,8 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
     GdkWindow *window = gtk_widget_get_window(calib_area->drawing_area);
     if (window) {
+        int i;
+
         cairo_t *cr = gdk_cairo_create(window);
         cairo_save(cr);
 
@@ -132,7 +134,7 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         double text_height = -1;
         double text_width = -1;
         cairo_text_extents_t extent;
-        for (int i = 0; i != help_lines; i++) {
+        for (i = 0; i != help_lines; i++) {
             cairo_text_extents(cr, help_text[i], &extent);
             text_width = MAXIMUM(text_width, extent.width);
             text_height = MAXIMUM(text_height, extent.height);
@@ -147,7 +149,7 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
         /* Print help lines */
         y -= 3;
-        for (int i = help_lines-1; i != -1; i--) {
+        for (i = help_lines-1; i != -1; i--) {
             cairo_text_extents(cr, help_text[i], &extent);
             cairo_move_to(cr, x + (text_width-extent.width)/2, y);
             cairo_show_text(cr, help_text[i]);
@@ -156,7 +158,7 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         cairo_stroke(cr);
 
         /* Draw the points */
-        for (int i = 0; i <= get_numclicks(calib_area->calibrator); i++) {
+        for (i = 0; i <= get_numclicks(calib_area->calibrator); i++) {
             /* set color: already clicked or not */
             if (i < get_numclicks(calib_area->calibrator))
                 cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
