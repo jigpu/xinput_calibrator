@@ -236,7 +236,8 @@ bool on_timer_signal(struct CalibArea *calib_area)
 {
     calib_area->time_elapsed += time_step;
     if (calib_area->time_elapsed > max_time) {
-        exit(0);
+        gtk_main_quit();
+        return false;
     }
 
     /* Update clock */
@@ -269,16 +270,8 @@ bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer da
 
     /* Are we done yet? */
     if (get_numclicks(calib_area->calibrator) >= 4) {
-        /* Recalibrate */
-        success = finish(calib_area->calibrator, calib_area->display_width, calib_area->display_height);
-
-        if (success) {
-            exit(0);
-        } else {
-            /* TODO, in GUI ? */
-            fprintf(stderr, "Error: unable to apply or save configuration values");
-            exit(1);
-        }
+        gtk_main_quit();
+        return true;
     }
 
     /* Force a redraw */
@@ -297,5 +290,36 @@ bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data)
     struct CalibArea *calib_area = (struct CalibArea*)data;
 
     (void) event;
-    exit(0);
+    gtk_main_quit();
 }
+
+/**
+ * Creates the windows and other objects required to do calibration
+ * under GTK and then starts the main loop. When the main loop exits,
+ * the calibration will be calculated (if possible) and this function
+ * will then return ('true' if successful, 'false' otherwise).
+ */
+bool run_gui(struct Calib* c)
+{
+    GdkScreen *screen = gdk_screen_get_default();
+    /*int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?*/
+    GdkRectangle rect;
+    gdk_screen_get_monitor_geometry(screen, 0, &rect);
+
+    GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    /* when no window manager: explicitely take size of full screen */
+    gtk_window_move(GTK_WINDOW(win), rect.x, rect.y);
+    gtk_window_set_default_size(GTK_WINDOW(win), rect.width, rect.height);
+    /* in case of window manager: set as full screen to hide window decorations */
+    gtk_window_fullscreen(GTK_WINDOW(win));
+
+    struct CalibArea *calib_area = CalibrationArea_(c);
+
+    gtk_container_add(GTK_CONTAINER(win), calib_area->drawing_area);
+    gtk_widget_show_all(win);
+
+    gtk_main();
+
+    return finish(calib_area->calibrator, calib_area->display_width, calib_area->display_height);
+}
+

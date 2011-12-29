@@ -48,5 +48,6 @@ bool on_timer_signal(struct CalibArea *calib_area);
 bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data);
 void draw_message(struct CalibArea *calib_area, const char* msg);
 bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data);
+bool run_gui(struct Calib* c);
 
 #endif
