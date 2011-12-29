@@ -220,7 +220,11 @@ void redraw(struct CalibArea *calib_area)
 {
     GdkWindow *win = gtk_widget_get_window(calib_area->drawing_area);
     if (win) {
-        const GdkRectangle rect = {0, 0, calib_area->display_width, calib_area->display_height};
+        GdkRectangle rect;
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = calib_area->display_width;
+        rect.height = calib_area->display_height;
         gdk_window_invalidate_rect(win, &rect, false);
     }
 }
@@ -235,10 +239,11 @@ bool on_timer_signal(struct CalibArea *calib_area)
     /* Update clock */
     GdkWindow *win = gtk_widget_get_window(calib_area->drawing_area);
     if (win) {
-        const GdkRectangle rect = {calib_area->display_width/2 - clock_radius - clock_line_width,
-                                 calib_area->display_height/2 - clock_radius - clock_line_width,
-                                 2 * clock_radius + 1 + 2 * clock_line_width,
-                                 2 * clock_radius + 1 + 2 * clock_line_width};
+        GdkRectangle rect;
+        rect.x = calib_area->display_width/2 - clock_radius - clock_line_width;
+        rect.y = calib_area->display_height/2 - clock_radius - clock_line_width;
+        rect.width = 2 * clock_radius + 1 + 2 * clock_line_width;
+        rect.height = 2 * clock_radius + 1 + 2 * clock_line_width;
         gdk_window_invalidate_rect(win, &rect, false);
     }
 
