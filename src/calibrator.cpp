@@ -142,7 +142,7 @@ bool finish(struct Calib* c, int width, int height)
     }
 
     /* Compute min/max coordinates. */
-    XYinfo axys;
+    XYinfo axys = {-1, -1, -1, -1};
     /* These are scaled using the values of old_axys */
     const float scale_x = (c->old_axys.x_max - c->old_axys.x_min)/(float)width;
     axys.x_min = ((c->clicked_x[UL] + c->clicked_x[LL]) * scale_x/2) + c->old_axys.x_min;

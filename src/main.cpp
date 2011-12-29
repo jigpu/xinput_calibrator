@@ -173,7 +173,7 @@ struct Calib* main_common(int argc, char** argv)
     bool list_devices = false;
     bool fake = false;
     bool precalib = false;
-    XYinfo pre_axys;
+    XYinfo pre_axys = {-1, -1, -1, -1};
     const char* pre_device = NULL;
     const char* geometry = NULL;
     unsigned thr_misclick = 15;
@@ -286,11 +286,11 @@ struct Calib* main_common(int argc, char** argv)
     /* Choose the device to calibrate */
     XID         device_id   = (XID) -1;
     const char* device_name = NULL;
-    XYinfo      device_axys;
+    XYinfo      device_axys = {-1, -1, -1, -1};
     if (fake) {
         /* Fake a calibratable device */
         device_name = "Fake_device";
-        device_axys = XYinfo(0,1000,0,1000);
+        device_axys = {0,1000,0,1000};
 
         if (verbose) {
             printf("DEBUG: Faking device: %s\n", device_name);

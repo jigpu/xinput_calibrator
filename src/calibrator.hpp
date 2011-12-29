@@ -63,23 +63,20 @@ enum {
 };
 
 /* Output types */
-enum OutputType {
+typedef enum {
     OUTYPE_AUTO,
     OUTYPE_XORGCONFD,
     OUTYPE_HAL,
     OUTYPE_XINPUT
-};
+} OutputType;
 
 /* struct to hold min/max info of the X and Y axis */
-struct XYinfo {
+typedef struct {
     int x_min;
     int x_max;
     int y_min;
     int y_max;
-    XYinfo() : x_min(-1), x_max(-1), y_min(-1), y_max(-1) {}
-    XYinfo(int xmi, int xma, int ymi, int yma) :
-         x_min(xmi), x_max(xma), y_min(ymi), y_max(yma) {}
-};
+} XYinfo;
 
 struct Calib {
     /* name of the device (driver) */
