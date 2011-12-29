@@ -20,14 +20,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <cstring>
-#include <stdio.h>
+
 #include <stdlib.h>
-#include <stdexcept>
+#include <ctype.h>
+#include <string.h>
 
-#include <gtk/gtk.h>
-
-#include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>
 
 #include "gui_gtk.hpp"

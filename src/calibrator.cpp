@@ -20,14 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <algorithm>
-#include <sys/types.h>
-#include <dirent.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cstring>
+#include <stdlib.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <string.h>
 
 #include "calibrator.hpp"
 

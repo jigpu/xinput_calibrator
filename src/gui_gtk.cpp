@@ -20,11 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <stdlib.h>
+#include <math.h>
 #include <gtk/gtk.h>
 #include <cairo.h>
-#include <math.h>
-#include <stdlib.h>
-#include <algorithm>
 
 #include "calibrator.hpp"
 #include "gui_gtk.hpp"

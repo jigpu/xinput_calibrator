@@ -21,6 +21,9 @@
  * THE SOFTWARE.
  */
 
+#ifndef _main_hpp
+#define _main_hpp
+
 #include "calibrator.hpp"
 
 // strdup: non-ansi
@@ -43,3 +46,4 @@ struct Calib* main_common(int argc, char** argv);
 
 int main(int argc, char** argv);
 
+#endif
