@@ -70,6 +70,7 @@ CalibrationArea_(struct Calib *c)
 
     /* Connect callbacks */
     g_signal_connect(calib_area->drawing_area, "expose-event", G_CALLBACK(on_expose_event), calib_area);
+    g_signal_connect(calib_area->drawing_area, "draw", G_CALLBACK(draw), calib_area);
     g_signal_connect(calib_area->drawing_area, "button-press-event", G_CALLBACK(on_button_press_event), calib_area);
     g_signal_connect(calib_area->drawing_area, "key-press-event", G_CALLBACK(on_key_press_event), calib_area);
 
@@ -148,106 +149,109 @@ on_expose_event(GtkWidget      *widget,
     window = gtk_widget_get_window(calib_area->drawing_area);
     if (window)
     {
-        int i;
-        double text_height;
-        double text_width;
-        double x;
-        double y;
-        cairo_text_extents_t extent;
-
         cairo_t *cr = gdk_cairo_create(window);
         cairo_save(cr);
-
         cairo_rectangle(cr, event->area.x, event->area.y, event->area.width, event->area.height);
         cairo_clip(cr);
-
-        /* Print the text */
-        cairo_set_font_size(cr, font_size);
-        text_height = -1;
-        text_width = -1;
-        for (i = 0; i != HELP_LINES; i++)
-        {
-            cairo_text_extents(cr, help_text[i], &extent);
-            text_width = MAXIMUM(text_width, extent.width);
-            text_height = MAXIMUM(text_height, extent.height);
-        }
-        text_height += 2;
-
-        x = (calib_area->display_width - text_width) / 2;
-        y = (calib_area->display_height - text_height) / 2 - 60;
-        cairo_set_line_width(cr, 2);
-        cairo_rectangle(cr, x - 10, y - (HELP_LINES*text_height) - 10,
-                text_width + 20, (HELP_LINES*text_height) + 20);
-
-        /* Print help lines */
-        y -= 3;
-        for (i = HELP_LINES-1; i != -1; i--)
-        {
-            cairo_text_extents(cr, help_text[i], &extent);
-            cairo_move_to(cr, x + (text_width-extent.width)/2, y);
-            cairo_show_text(cr, help_text[i]);
-            y -= text_height;
-        }
-        cairo_stroke(cr);
-
-        /* Draw the points */
-        for (i = 0; i <= calib_area->calibrator->num_clicks; i++)
-        {
-            /* set color: already clicked or not */
-            if (i < calib_area->calibrator->num_clicks)
-                cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-            else
-                cairo_set_source_rgb(cr, 0.8, 0.0, 0.0);
-
-            cairo_set_line_width(cr, 1);
-            cairo_move_to(cr, calib_area->X[i] - cross_lines, calib_area->Y[i]);
-            cairo_rel_line_to(cr, cross_lines*2, 0);
-            cairo_move_to(cr, calib_area->X[i], calib_area->Y[i] - cross_lines);
-            cairo_rel_line_to(cr, 0, cross_lines*2);
-            cairo_stroke(cr);
-
-            cairo_arc(cr, calib_area->X[i], calib_area->Y[i], cross_circle, 0.0, 2.0 * M_PI);
-            cairo_stroke(cr);
-        }
-
-        /* Draw the clock background */
-        cairo_arc(cr, calib_area->display_width/2, calib_area->display_height/2, clock_radius/2, 0.0, 2.0 * M_PI);
-        cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
-        cairo_fill_preserve(cr);
-        cairo_stroke(cr);
-
-        cairo_set_line_width(cr, clock_line_width);
-        cairo_arc(cr, calib_area->display_width/2, calib_area->display_height/2, (clock_radius - clock_line_width)/2,
-             3/2.0*M_PI, (3/2.0*M_PI) + ((double)calib_area->time_elapsed/(double)max_time) * 2*M_PI);
-        cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-        cairo_stroke(cr);
-
-
-        /* Draw the message (if any) */
-        if (calib_area->message != NULL)
-        {
-            /* Frame the message */
-            cairo_set_font_size(cr, font_size);
-            cairo_text_extents(cr, calib_area->message, &extent);
-            text_width = extent.width;
-            text_height = extent.height;
-
-            x = (calib_area->display_width - text_width) / 2;
-            y = (calib_area->display_height - text_height + clock_radius) / 2 + 60;
-            cairo_set_line_width(cr, 2);
-            cairo_rectangle(cr, x - 10, y - text_height - 10,
-                    text_width + 20, text_height + 25);
-
-            /* Print the message */
-            cairo_move_to(cr, x, y);
-            cairo_show_text(cr, calib_area->message);
-            cairo_stroke(cr);
-        }
-
+        draw(widget, cr, data);
         cairo_restore(cr);
     }
-
     return true;
+}
+
+void
+draw(GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+    struct CalibArea *calib_area = (struct CalibArea*)data;
+    int i;
+    double text_height;
+    double text_width;
+    double x;
+    double y;
+    cairo_text_extents_t extent;
+
+    /* Print the text */
+    cairo_set_font_size(cr, font_size);
+    text_height = -1;
+    text_width = -1;
+    for (i = 0; i != HELP_LINES; i++)
+    {
+        cairo_text_extents(cr, help_text[i], &extent);
+        text_width = MAXIMUM(text_width, extent.width);
+        text_height = MAXIMUM(text_height, extent.height);
+    }
+    text_height += 2;
+
+    x = (calib_area->display_width - text_width) / 2;
+    y = (calib_area->display_height - text_height) / 2 - 60;
+    cairo_set_line_width(cr, 2);
+    cairo_rectangle(cr, x - 10, y - (HELP_LINES*text_height) - 10,
+            text_width + 20, (HELP_LINES*text_height) + 20);
+
+    /* Print help lines */
+    y -= 3;
+    for (i = HELP_LINES-1; i != -1; i--)
+    {
+        cairo_text_extents(cr, help_text[i], &extent);
+        cairo_move_to(cr, x + (text_width-extent.width)/2, y);
+        cairo_show_text(cr, help_text[i]);
+        y -= text_height;
+    }
+    cairo_stroke(cr);
+
+    /* Draw the points */
+    for (i = 0; i <= calib_area->calibrator->num_clicks; i++)
+    {
+        /* set color: already clicked or not */
+        if (i < calib_area->calibrator->num_clicks)
+            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+        else
+            cairo_set_source_rgb(cr, 0.8, 0.0, 0.0);
+
+        cairo_set_line_width(cr, 1);
+        cairo_move_to(cr, calib_area->X[i] - cross_lines, calib_area->Y[i]);
+        cairo_rel_line_to(cr, cross_lines*2, 0);
+        cairo_move_to(cr, calib_area->X[i], calib_area->Y[i] - cross_lines);
+        cairo_rel_line_to(cr, 0, cross_lines*2);
+        cairo_stroke(cr);
+
+        cairo_arc(cr, calib_area->X[i], calib_area->Y[i], cross_circle, 0.0, 2.0 * M_PI);
+        cairo_stroke(cr);
+    }
+
+    /* Draw the clock background */
+    cairo_arc(cr, calib_area->display_width/2, calib_area->display_height/2, clock_radius/2, 0.0, 2.0 * M_PI);
+    cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
+    cairo_fill_preserve(cr);
+    cairo_stroke(cr);
+
+    cairo_set_line_width(cr, clock_line_width);
+    cairo_arc(cr, calib_area->display_width/2, calib_area->display_height/2, (clock_radius - clock_line_width)/2,
+         3/2.0*M_PI, (3/2.0*M_PI) + ((double)calib_area->time_elapsed/(double)max_time) * 2*M_PI);
+    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+    cairo_stroke(cr);
+
+
+    /* Draw the message (if any) */
+    if (calib_area->message != NULL)
+    {
+        /* Frame the message */
+        cairo_set_font_size(cr, font_size);
+        cairo_text_extents(cr, calib_area->message, &extent);
+        text_width = extent.width;
+        text_height = extent.height;
+
+        x = (calib_area->display_width - text_width) / 2;
+        y = (calib_area->display_height - text_height + clock_radius) / 2 + 60;
+        cairo_set_line_width(cr, 2);
+        cairo_rectangle(cr, x - 10, y - text_height - 10,
+                text_width + 20, text_height + 25);
+
+        /* Print the message */
+        cairo_move_to(cr, x, y);
+        cairo_show_text(cr, calib_area->message);
+        cairo_stroke(cr);
+    }
 }
 
 void

@@ -47,6 +47,9 @@ void              set_display_size      (struct CalibArea *calib_area,
 bool              on_expose_event       (GtkWidget        *widget,
                                          GdkEventExpose   *event,
                                          gpointer data);
+void              draw                  (GtkWidget        *widget,
+                                         cairo_t          *cr,
+                                         gpointer          data);
 void              redraw                (struct CalibArea *calib_area);
 bool              on_timer_signal       (struct CalibArea *calib_area);
 bool              on_button_press_event (GtkWidget        *widget,
