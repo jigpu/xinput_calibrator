@@ -49,8 +49,6 @@ add_click (struct Calib *c,
             if (abs(x - c->clicked_x[i]) <= c->threshold_doubleclick &&
                 abs(y - c->clicked_y[i]) <= c->threshold_doubleclick)
             {
-                if (c->verbose)
-                    printf("DEBUG: Not adding click %i (X=%i, Y=%i): within %i pixels of previous click\n", c->num_clicks, x, y, c->threshold_doubleclick);
                 return false;
             }
             i--;
@@ -96,16 +94,6 @@ add_click (struct Calib *c,
 
         if (misclick)
         {
-            if (c->verbose)
-            {
-                if (c->num_clicks == 1)
-                    printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) (threshold=%i)\n", c->num_clicks, x, y, c->clicked_x[0], c->clicked_y[0], c->threshold_misclick);
-                else if (c->num_clicks == 2)
-                    printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) or click 1 (X=%i, Y=%i) (threshold=%i)\n", c->num_clicks, x, y, c->clicked_x[0], c->clicked_y[0], c->clicked_x[1], c->clicked_y[1], c->threshold_misclick);
-                else if (c->num_clicks == 3)
-                    printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 1 (X=%i, Y=%i) or click 2 (X=%i, Y=%i) (threshold=%i)\n", c->num_clicks, x, y, c->clicked_x[1], c->clicked_y[1], c->clicked_x[2], c->clicked_y[2], c->threshold_misclick);
-            }
-
             reset(c);
             return false;
         }
@@ -114,9 +102,6 @@ add_click (struct Calib *c,
     c->clicked_x[c->num_clicks] = x;
     c->clicked_y[c->num_clicks] = y;
     c->num_clicks++;
-
-    if (c->verbose)
-        printf("DEBUG: Adding click %i (X=%i, Y=%i)\n", c->num_clicks-1, x, y);
 
     return true;
 }

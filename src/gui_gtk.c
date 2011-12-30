@@ -79,14 +79,9 @@ CalibrationArea_(struct Calib *c)
         int gw,gh;
         int res = sscanf(geo,"%dx%d",&gw,&gh);
         if (res != 2)
-        {
-            fprintf(stderr,"Warning: error parsing geometry string - using defaults.\n");
             geo = NULL;
-        }
         else
-        {
-            set_display_size(calib_area, gw, gh );
-        }
+            set_display_size(calib_area, gw, gh );\
     }
     if (geo == NULL)
     {
