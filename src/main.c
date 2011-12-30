@@ -323,53 +323,6 @@ struct Calib* main_common(int argc, char** argv)
             verbose, thr_misclick, thr_doubleclick, geometry);
 }
 
-const char* get_sysfs_name(struct Calib* c)
-{
-    if (is_sysfs_name(c, c->device_name))
-        return c->device_name;
-
-    /* TODO: more mechanisms */
-
-    return NULL;
-}
-
-bool is_sysfs_name(struct Calib* c, const char* name) {
-    const char* SYSFS_INPUT="/sys/class/input";
-    const char* SYSFS_DEVNAME="device/name";
-
-    DIR* dp = opendir(SYSFS_INPUT);
-    if (dp == NULL)
-        return false;
-
-    struct dirent *ep;
-    while (ep = readdir(dp)) {
-        if (strncmp(ep->d_name, "event", strlen("event")) == 0) {
-            /* got event name, get its sysfs device name */
-            char filename[40]; /* actually 35, but hey... */
-            (void) sprintf(filename, "%s/%s/%s", SYSFS_INPUT, ep->d_name, SYSFS_DEVNAME);
-
-            FILE *f = fopen(filename, "r");
-            if (f != NULL) {
-                int match = 0;
-                char devname[100];
-                match = fscanf(f, "%s", &devname);
-                if (match == 1 && strcmp(devname, name) == 0) {
-                    if (c->verbose)
-                        printf("DEBUG: Found that '%s' is a sysfs name.\n", name);
-                    return true;
-                }
-                fclose(f);
-            }
-        }
-    }
-    (void) closedir(dp);
-
-    if (c->verbose)
-        printf("DEBUG: Name '%s' does not match any in '%s/event*/%s'\n",
-                    name, SYSFS_INPUT, SYSFS_DEVNAME);
-    return false;
-}
-
 bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
     bool has_support = false;
 
@@ -396,14 +349,13 @@ bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
 struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const char* geometry)
 {
     struct Calib* c = (struct Calib*)calloc(1, sizeof(struct Calib));
-    c->device_name = device_name0;
     c->old_axys = *axys0;
     c->verbose = verbose0;
     c->threshold_misclick = thr_misclick;
     c->threshold_doubleclick = thr_doubleclick;
     c->geometry = geometry;
 
-    printf("Calibrating standard Xorg driver \"%s\"\n", c->device_name);
+    printf("Calibrating standard Xorg driver \"%s\"\n", device_name0);
     printf("\tcurrent calibration values: min_x=%d, max_x=%d and min_y=%d, max_y=%d\n",
                 c->old_axys.x_min, c->old_axys.x_max, c->old_axys.y_min, c->old_axys.y_max);
     printf("\tIf these values are estimated wrong, either supply it manually with the --precalib option, or run the 'get_precalib.sh' script to automatically get it (through HAL).\n");
@@ -427,10 +379,7 @@ bool finish_data(struct Calib* c, const XYinfo new_axys, int swap_xy)
 
 bool output_xorgconfd(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swap_xy)
 {
-    const char* sysfs_name = get_sysfs_name(c);
-    bool not_sysfs_name = (sysfs_name == NULL);
-    if (not_sysfs_name)
-        sysfs_name = "!!Name_Of_TouchScreen!!";
+    const char* sysfs_name = "!!Name_Of_TouchScreen!!";
 
     /* xorg.conf.d snippet */
     printf("  copy the snippet below into '/etc/X11/xorg.conf.d/99-calibration.conf'\n");
@@ -444,9 +393,6 @@ bool output_xorgconfd(struct Calib* c, const XYinfo new_axys, int swap_xy, int n
     if (swap_xy != 0)
         printf("	Option	\"SwapXY\"	\"%d\" # unless it was already set to 1\n", new_swap_xy);
     printf("EndSection\n");
-
-    if (not_sysfs_name)
-        printf("\nChange '%s' to your device's name in the config above.\n", sysfs_name);
 
     return true;
 }

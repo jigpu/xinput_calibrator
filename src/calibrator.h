@@ -78,9 +78,6 @@ typedef enum
 
 struct Calib
 {
-    /* name of the device (driver) */
-    const char* device_name;
-
     /* original axys values */
     XYinfo old_axys;
 
