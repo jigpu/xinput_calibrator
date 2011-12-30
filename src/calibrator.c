@@ -140,11 +140,18 @@ finish (struct Calib *c,
         XYinfo       *new_axys,
         bool         *swap)
 {
+    bool swap_xy;
+    float scale_x;
+    float scale_y;
+    int delta_x;
+    int delta_y;
+    XYinfo axys = {-1, -1, -1, -1};
+
     if (c->num_clicks != 4)
         return false;
 
     /* Should x and y be swapped? */
-    const bool swap_xy = (abs (c->clicked_x [UL] - c->clicked_x [UR]) < abs (c->clicked_y [UL] - c->clicked_y [UR]));
+    swap_xy = (abs (c->clicked_x [UL] - c->clicked_x [UR]) < abs (c->clicked_y [UL] - c->clicked_y [UR]));
     if (swap_xy)
     {
         SWAP(c->clicked_x[LL], c->clicked_x[UR]);
@@ -152,23 +159,21 @@ finish (struct Calib *c,
     }
 
     /* Compute min/max coordinates. */
-    XYinfo axys = {-1, -1, -1, -1};
-
     /* These are scaled using the values of old_axys */
-    const float scale_x = (c->old_axys.x_max - c->old_axys.x_min)/(float)width;
+    scale_x = (c->old_axys.x_max - c->old_axys.x_min)/(float)width;
     axys.x_min = ((c->clicked_x[UL] + c->clicked_x[LL]) * scale_x/2) + c->old_axys.x_min;
     axys.x_max = ((c->clicked_x[UR] + c->clicked_x[LR]) * scale_x/2) + c->old_axys.x_min;
-    const float scale_y = (c->old_axys.y_max - c->old_axys.y_min)/(float)height;
+    scale_y = (c->old_axys.y_max - c->old_axys.y_min)/(float)height;
     axys.y_min = ((c->clicked_y[UL] + c->clicked_y[UR]) * scale_y/2) + c->old_axys.y_min;
     axys.y_max = ((c->clicked_y[LL] + c->clicked_y[LR]) * scale_y/2) + c->old_axys.y_min;
 
     /* Add/subtract the offset that comes from not having the points in the
      * corners (using the same coordinate system they are currently in)
      */
-    const int delta_x = (axys.x_max - axys.x_min) / (float)(NUM_BLOCKS - 2);
+    delta_x = (axys.x_max - axys.x_min) / (float)(NUM_BLOCKS - 2);
     axys.x_min -= delta_x;
     axys.x_max += delta_x;
-    const int delta_y = (axys.y_max - axys.y_min) / (float)(NUM_BLOCKS - 2);
+    delta_y = (axys.y_max - axys.y_min) / (float)(NUM_BLOCKS - 2);
     axys.y_min -= delta_y;
     axys.y_max += delta_y;
 
