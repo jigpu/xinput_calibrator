@@ -334,10 +334,8 @@ on_key_press_event(GtkWidget   *widget,
                    GdkEventKey *event,
                    gpointer     data)
 {
-    struct CalibArea *calib_area = (struct CalibArea*)data;
-
-    (void) event;
     gtk_main_quit();
+    return true;
 }
 
 /**
