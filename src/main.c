@@ -323,29 +323,6 @@ struct Calib* main_common(int argc, char** argv)
             verbose, thr_misclick, thr_doubleclick, geometry);
 }
 
-bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
-    bool has_support = false;
-
-    Display* display = dpy;
-    if (dpy == NULL) /* no connection to reuse */
-        display = XOpenDisplay(NULL);
-
-    if (display == NULL) {
-        fprintf(stderr, "Unable to connect to X server\n");
-        exit(1);
-    }
-
-    if (strstr(ServerVendor(display), "X.Org") &&
-        VendorRelease(display) >= 10800000) {
-        has_support = true;
-    }
-
-    if (dpy == NULL) /* no connection to reuse */
-        XCloseDisplay(display);
-
-    return has_support;
-}
-
 struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const char* geometry)
 {
     struct Calib* c = (struct Calib*)calloc(1, sizeof(struct Calib));

@@ -45,17 +45,6 @@ static void usage(char* cmd, unsigned thr_misclick);
 
 struct Calib* main_common(int argc, char** argv);
 
-/* get the sysfs name of the device,
- * returns NULL if it can not be found
- */
-const char* get_sysfs_name(struct Calib*);
-
-/* Check whether the given name is a sysfs device name */
-bool is_sysfs_name(struct Calib*, const char* name);
-
-/* Check whether the X server has xorg.conf.d support */
-bool has_xorgconfd_support(struct Calib*, Display* display);
-
 struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo *axys,
         const bool verbose, const int thr_misclick, const int thr_doubleclick,
         const char* geometry);
