@@ -26,6 +26,7 @@
 
 #include "calibrator.h"
 
+
 /* strdup: non-ansi */
 char* my_strdup(const char* s);
 char* my_strdup(const char* s) {
@@ -57,11 +58,10 @@ bool has_xorgconfd_support(struct Calib*, Display* display);
 
 struct Calib* CalibratorXorgPrint(const char* const device_name, const XYinfo *axys,
         const bool verbose, const int thr_misclick, const int thr_doubleclick,
-        const OutputType output_type, const char* geometry);
+        const char* geometry);
 
 bool finish_data(struct Calib*, const XYinfo new_axys, int swap_xy);
 bool output_xorgconfd(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
-bool output_hal(struct Calib*, const XYinfo new_axys, int swap_xy, int new_swap_xy);
 
 int main(int argc, char** argv);
 

@@ -163,7 +163,6 @@ static void usage(char* cmd, unsigned thr_misclick)
     fprintf(stderr, "\t--precalib: manually provide the current calibration setting (eg. the values in xorg.conf)\n");
     fprintf(stderr, "\t--misclick: set the misclick threshold (0=off, default: %i pixels)\n",
         thr_misclick);
-    fprintf(stderr, "\t--output-type <auto|xorg.conf.d|hal|xinput>: type of config to ouput (auto=automatically detect, default: auto)\n");
     fprintf(stderr, "\t--fake: emulate a fake device (for testing purposes)\n");
     fprintf(stderr, "\t--geometry: manually provide the geometry (width and height) for the calibration window\n");
 }
@@ -179,7 +178,6 @@ struct Calib* main_common(int argc, char** argv)
     const char* geometry = NULL;
     unsigned thr_misclick = 15;
     unsigned thr_doubleclick = 7;
-    OutputType output_type = OUTYPE_AUTO;
 
     /* parse input */
     if (argc > 1) {
@@ -234,30 +232,6 @@ struct Calib* main_common(int argc, char** argv)
                     thr_misclick = atoi(argv[++i]);
                 else {
                     fprintf(stderr, "Error: --misclick needs a number (the pixel threshold) as argument. Set to 0 to disable mis-click detection.\n\n");
-                    usage(argv[0], thr_misclick);
-                    exit(1);
-                }
-            } else
-
-            /* Get output type ? */
-            if (strcmp("--output-type", argv[i]) == 0) {
-                if (argc > i+1) {
-                    i++; /* eat it or exit */
-                    if (strcmp("auto", argv[i]) == 0)
-                        output_type = OUTYPE_AUTO;
-                    else if (strcmp("xorg.conf.d", argv[i]) == 0)
-                        output_type = OUTYPE_XORGCONFD;
-                    else if (strcmp("hal", argv[i]) == 0)
-                        output_type = OUTYPE_HAL;
-                    else if (strcmp("xinput", argv[i]) == 0)
-                        output_type = OUTYPE_XINPUT;
-                    else {
-                        fprintf(stderr, "Error: --output-type needs one of auto|xorg.conf.d|hal|xinput.\n\n");
-                        usage(argv[0], thr_misclick);
-                        exit(1);
-                    }
-                } else {
-                    fprintf(stderr, "Error: --output-type needs one argument.\n\n");
                     usage(argv[0], thr_misclick);
                     exit(1);
                 }
@@ -346,7 +320,7 @@ struct Calib* main_common(int argc, char** argv)
 
     /* lastly, presume a standard Xorg driver (evtouch, mutouch, ...) */
     return CalibratorXorgPrint(device_name, &device_axys,
-            verbose, thr_misclick, thr_doubleclick, output_type, geometry);
+            verbose, thr_misclick, thr_doubleclick, geometry);
 }
 
 const char* get_sysfs_name(struct Calib* c)
@@ -419,7 +393,7 @@ bool has_xorgconfd_support(struct Calib* c, Display* dpy) {
     return has_support;
 }
 
-struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const OutputType output_type, const char* geometry)
+struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *axys0, const bool verbose0, const int thr_misclick, const int thr_doubleclick, const char* geometry)
 {
     struct Calib* c = (struct Calib*)calloc(1, sizeof(struct Calib));
     c->device_name = device_name0;
@@ -427,7 +401,6 @@ struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *
     c->verbose = verbose0;
     c->threshold_misclick = thr_misclick;
     c->threshold_doubleclick = thr_doubleclick;
-    c->output_type = output_type;
     c->geometry = geometry;
 
     printf("Calibrating standard Xorg driver \"%s\"\n", c->device_name);
@@ -447,25 +420,7 @@ bool finish_data(struct Calib* c, const XYinfo new_axys, int swap_xy)
     int new_swap_xy = swap_xy;
 
     printf("\n\n--> Making the calibration permanent <--\n");
-    switch (c->output_type) {
-        case OUTYPE_AUTO:
-            /* xorg.conf.d or alternatively hal config */
-            if (has_xorgconfd_support(c, NULL)) {
-                success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
-            } else {
-                success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
-            }
-            break;
-        case OUTYPE_XORGCONFD:
-            success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
-            break;
-        case OUTYPE_HAL:
-            success &= output_hal(c, new_axys, swap_xy, new_swap_xy);
-            break;
-        default:
-            fprintf(stderr, "ERROR: XorgPrint Calibrator does not support the supplied --output-type\n");
-            success = false;
-    }
+    success &= output_xorgconfd(c, new_axys, swap_xy, new_swap_xy);
 
     return success;
 }
@@ -489,31 +444,6 @@ bool output_xorgconfd(struct Calib* c, const XYinfo new_axys, int swap_xy, int n
     if (swap_xy != 0)
         printf("	Option	\"SwapXY\"	\"%d\" # unless it was already set to 1\n", new_swap_xy);
     printf("EndSection\n");
-
-    if (not_sysfs_name)
-        printf("\nChange '%s' to your device's name in the config above.\n", sysfs_name);
-
-    return true;
-}
-
-bool output_hal(struct Calib* c, const XYinfo new_axys, int swap_xy, int new_swap_xy)
-{
-    const char* sysfs_name = get_sysfs_name(c);
-    bool not_sysfs_name = (sysfs_name == NULL);
-    if (not_sysfs_name)
-        sysfs_name = "!!Name_Of_TouchScreen!!";
-
-    /* HAL policy output */
-    printf("  copy the policy below into '/etc/hal/fdi/policy/touchscreen.fdi'\n\
-<match key=\"info.product\" contains=\"%s\">\n\
-  <merge key=\"input.x11_options.minx\" type=\"string\">%d</merge>\n\
-  <merge key=\"input.x11_options.maxx\" type=\"string\">%d</merge>\n\
-  <merge key=\"input.x11_options.miny\" type=\"string\">%d</merge>\n\
-  <merge key=\"input.x11_options.maxy\" type=\"string\">%d</merge>\n"
-     , sysfs_name, new_axys.x_min, new_axys.x_max, new_axys.y_min, new_axys.y_max);
-    if (swap_xy != 0)
-        printf("  <merge key=\"input.x11_options.swapxy\" type=\"string\">%d</merge>\n", new_swap_xy);
-    printf("</match>\n");
 
     if (not_sysfs_name)
         printf("\nChange '%s' to your device's name in the config above.\n", sysfs_name);

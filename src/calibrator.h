@@ -61,15 +61,6 @@ enum
 	LR = 3  /* Lower-right */
 };
 
-/* Output types */
-typedef enum
-{
-	OUTYPE_AUTO,
-	OUTYPE_XORGCONFD,
-	OUTYPE_HAL,
-	OUTYPE_XINPUT
-} OutputType;
-
 /* struct to hold min/max info of the X and Y axis */
 typedef struct
 {
@@ -112,9 +103,6 @@ struct Calib
      * Set to zero if you don't want this check
      */
     int threshold_misclick;
-
-    /* Type of output */
-    OutputType output_type;
 
     /* manually specified geometry string */
     const char* geometry;
