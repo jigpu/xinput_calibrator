@@ -27,23 +27,30 @@
 
 #define SWAP(x,y)  do { int t; t=(x); x=(y); y=t; } while (0)
 
-void reset(struct Calib* c)
+/* reset clicks */
+void
+reset (struct Calib *c)
 {
-	c->num_clicks = 0;
+    c->num_clicks = 0;
 }
 
-bool add_click(struct Calib* c, int x, int y)
+/* add a click with the given coordinates */
+bool
+add_click (struct Calib *c,
+           int           x,
+           int           y)
 {
     /* Double-click detection */
-    if (c->threshold_doubleclick > 0 && c->num_clicks > 0) {
+    if (c->threshold_doubleclick > 0 && c->num_clicks > 0)
+    {
         int i = c->num_clicks-1;
-        while (i >= 0) {
-            if (abs(x - c->clicked_x[i]) <= c->threshold_doubleclick
-                && abs(y - c->clicked_y[i]) <= c->threshold_doubleclick) {
-                if (c->verbose) {
-                    printf("DEBUG: Not adding click %i (X=%i, Y=%i): within %i pixels of previous click\n",
-                        c->num_clicks, x, y, c->threshold_doubleclick);
-                }
+        while (i >= 0)
+        {
+            if (abs(x - c->clicked_x[i]) <= c->threshold_doubleclick &&
+                abs(y - c->clicked_y[i]) <= c->threshold_doubleclick)
+            {
+                if (c->verbose)
+                    printf("DEBUG: Not adding click %i (X=%i, Y=%i): within %i pixels of previous click\n", c->num_clicks, x, y, c->threshold_doubleclick);
                 return false;
             }
             i--;
@@ -51,32 +58,46 @@ bool add_click(struct Calib* c, int x, int y)
     }
 
     /* Mis-click detection */
-    if (c->threshold_misclick > 0 && c->num_clicks > 0) {
+    if (c->threshold_misclick > 0 && c->num_clicks > 0)
+    {
         bool misclick = true;
 
-        if (c->num_clicks == 1) {
+        if (c->num_clicks == 1)
+        {
             /* check that along one axis of first point */
             if (along_axis(c, x,c->clicked_x[0],c->clicked_y[0]) ||
                 along_axis(c, y,c->clicked_x[0],c->clicked_y[0]))
+            {
                 misclick = false;
-        } else if (c->num_clicks == 2) {
+            }
+        }
+        else if (c->num_clicks == 2)
+        {
             /* check that along other axis of first point than second point */
             if ((along_axis(c, y,c->clicked_x[0],c->clicked_y[0]) &&
                  along_axis(c, c->clicked_x[1],c->clicked_x[0],c->clicked_y[0])) ||
                 (along_axis(c, x,c->clicked_x[0],c->clicked_y[0]) &&
                  along_axis(c, c->clicked_y[1],c->clicked_x[0],c->clicked_y[0])))
+            {
                 misclick = false;
-        } else if (c->num_clicks == 3) {
+            }
+        }
+        else if (c->num_clicks == 3)
+        {
             /* check that along both axis of second and third point */
             if ((along_axis(c, x,c->clicked_x[1],c->clicked_y[1]) &&
                  along_axis(c, y,c->clicked_x[2],c->clicked_y[2])) ||
                 (along_axis(c, y,c->clicked_x[1],c->clicked_y[1]) &&
                  along_axis(c, x,c->clicked_x[2],c->clicked_y[2])))
+            {
                 misclick = false;
+            }
         }
 
-        if (misclick) {
-            if (c->verbose) {
+        if (misclick)
+        {
+            if (c->verbose)
+            {
                 if (c->num_clicks == 1)
                     printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) (threshold=%i)\n", c->num_clicks, x, y, c->clicked_x[0], c->clicked_y[0], c->threshold_misclick);
                 else if (c->num_clicks == 2)
@@ -100,27 +121,39 @@ bool add_click(struct Calib* c, int x, int y)
     return true;
 }
 
-bool along_axis(struct Calib* c, int xy, int x0, int y0)
+/* check whether the coordinates are along the respective axis */
+bool
+along_axis (struct Calib *c,
+            int           xy,
+            int           x0,
+            int           y0)
 {
     return ((abs(xy - x0) <= c->threshold_misclick) ||
             (abs(xy - y0) <= c->threshold_misclick));
 }
 
-bool finish(struct Calib* c, int width, int height, XYinfo *new_axys, bool *swap)
+/* calculate and apply the calibration */
+bool
+finish (struct Calib *c,
+        int           width,
+        int           height,
+        XYinfo       *new_axys,
+        bool         *swap)
 {
-    if (c->num_clicks != 4) {
+    if (c->num_clicks != 4)
         return false;
-    }
 
     /* Should x and y be swapped? */
     const bool swap_xy = (abs (c->clicked_x [UL] - c->clicked_x [UR]) < abs (c->clicked_y [UL] - c->clicked_y [UR]));
-    if (swap_xy) {
+    if (swap_xy)
+    {
         SWAP(c->clicked_x[LL], c->clicked_x[UR]);
         SWAP(c->clicked_y[LL], c->clicked_y[UR]);
     }
 
     /* Compute min/max coordinates. */
     XYinfo axys = {-1, -1, -1, -1};
+
     /* These are scaled using the values of old_axys */
     const float scale_x = (c->old_axys.x_max - c->old_axys.x_min)/(float)width;
     axys.x_min = ((c->clicked_x[UL] + c->clicked_x[LL]) * scale_x/2) + c->old_axys.x_min;
@@ -139,9 +172,9 @@ bool finish(struct Calib* c, int width, int height, XYinfo *new_axys, bool *swap
     axys.y_min -= delta_y;
     axys.y_max += delta_y;
 
-
     /* If x and y has to be swapped we also have to swap the parameters */
-    if (swap_xy) {
+    if (swap_xy)
+    {
         SWAP(axys.x_min, axys.y_max);
         SWAP(axys.y_min, axys.x_max);
     }

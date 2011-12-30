@@ -53,36 +53,40 @@
 #define NUM_BLOCKS 8
 
 /* Names of the points */
-enum {
-    UL = 0, /* Upper-left  */
-    UR = 1, /* Upper-right */
-    LL = 2, /* Lower-left  */
-    LR = 3  /* Lower-right */
+enum
+{
+	UL = 0, /* Upper-left  */
+	UR = 1, /* Upper-right */
+	LL = 2, /* Lower-left  */
+	LR = 3  /* Lower-right */
 };
 
 /* Output types */
-typedef enum {
-    OUTYPE_AUTO,
-    OUTYPE_XORGCONFD,
-    OUTYPE_HAL,
-    OUTYPE_XINPUT
+typedef enum
+{
+	OUTYPE_AUTO,
+	OUTYPE_XORGCONFD,
+	OUTYPE_HAL,
+	OUTYPE_XINPUT
 } OutputType;
 
 /* struct to hold min/max info of the X and Y axis */
-typedef struct {
-    int x_min;
-    int x_max;
-    int y_min;
-    int y_max;
+typedef struct
+{
+	int x_min;
+	int x_max;
+	int y_min;
+	int y_max;
 } XYinfo;
 
 typedef enum
 {
-    false = 0,
-    true  = 1
+	false = 0,
+	true  = 1
 } bool;
 
-struct Calib {
+struct Calib
+{
     /* name of the device (driver) */
     const char* device_name;
 
@@ -116,16 +120,18 @@ struct Calib {
     const char* geometry;
 };
 
-/* reset clicks */
-void reset(struct Calib*);
+void reset      (struct Calib *c);
+bool add_click  (struct Calib *c,
+                 int           x,
+                 int           y);
+bool along_axis (struct Calib *c,
+                 int           xy,
+                 int           x0,
+                 int           y0);
+bool finish     (struct Calib *c,
+                 int           width,
+                 int           height,
+                 XYinfo       *new_axys,
+                 bool         *swap);
 
-/* add a click with the given coordinates */
-bool add_click(struct Calib*, int x, int y);
-
-/* calculate and apply the calibration */
-bool finish(struct Calib*, int width, int height, XYinfo *new_axys, bool *swap);
-
-/* check whether the coordinates are along the respective axis */
-bool along_axis(struct Calib*, int xy, int x0, int y0);
-
-#endif
+#endif /* _calibrator_h */

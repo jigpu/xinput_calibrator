@@ -40,14 +40,25 @@ struct CalibArea
     GtkWidget *drawing_area;
 };
 
-struct CalibArea* CalibrationArea_(struct Calib* c);
-void set_display_size(struct CalibArea *calib_area, int width, int height);
-bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data);
-void redraw(struct CalibArea *calib_area);
-bool on_timer_signal(struct CalibArea *calib_area);
-bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data);
-void draw_message(struct CalibArea *calib_area, const char* msg);
-bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data);
-bool run_gui(struct Calib* c, XYinfo *new_axys, bool *swap);
+struct CalibArea* CalibrationArea_      (struct Calib     *c);
+void              set_display_size      (struct CalibArea *calib_area,
+                                         int               width,
+                                         int               height);
+bool              on_expose_event       (GtkWidget        *widget,
+                                         GdkEventExpose   *event,
+                                         gpointer data);
+void              redraw                (struct CalibArea *calib_area);
+bool              on_timer_signal       (struct CalibArea *calib_area);
+bool              on_button_press_event (GtkWidget        *widget,
+                                         GdkEventButton   *event,
+                                         gpointer          data);
+void              draw_message          (struct CalibArea *calib_area,
+                                         const char       *msg);
+bool              on_key_press_event    (GtkWidget        *widget,
+                                         GdkEventKey      *event,
+                                         gpointer          data);
+bool              run_gui               (struct Calib     *c,
+                                         XYinfo           *new_axys,
+                                         bool             *swap);
 
-#endif
+#endif /* _gui_gtk_h */

@@ -29,6 +29,7 @@
 #include "gui_gtk.h"
 
 #define MAXIMUM(x,y) ((x) > (y) ? (x) : (y))
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327
 #endif
@@ -53,7 +54,8 @@ const char *help_text[] = {
     "(To abort, press any key or wait)"
 };
 
-struct CalibArea* CalibrationArea_(struct Calib* c)
+struct CalibArea*
+CalibrationArea_(struct Calib *c)
 {
     struct CalibArea *calib_area = (struct CalibArea*)calloc(1, sizeof(struct CalibArea));
     calib_area->calibrator = c;
@@ -70,13 +72,17 @@ struct CalibArea* CalibrationArea_(struct Calib* c)
 
     /* parse geometry string */
     const char* geo = calib_area->calibrator->geometry;
-    if (geo != NULL) {
+    if (geo != NULL)
+    {
         int gw,gh;
         int res = sscanf(geo,"%dx%d",&gw,&gh);
-        if (res != 2) {
+        if (res != 2)
+        {
             fprintf(stderr,"Warning: error parsing geometry string - using defaults.\n");
             geo = NULL;
-        } else {
+        }
+        else
+        {
             set_display_size(calib_area, gw, gh );
         }
     }
@@ -93,23 +99,38 @@ struct CalibArea* CalibrationArea_(struct Calib* c)
     return calib_area;
 }
 
-void set_display_size(struct CalibArea *calib_area, int width, int height) {
+void
+set_display_size(struct CalibArea *calib_area,
+                 int               width,
+                 int               height)
+{
     calib_area->display_width = width;
     calib_area->display_height = height;
 
     /* Compute absolute circle centers */
     const int delta_x = calib_area->display_width/NUM_BLOCKS;
     const int delta_y = calib_area->display_height/NUM_BLOCKS;
-    calib_area->X[UL] = delta_x;                                 calib_area->Y[UL] = delta_y;
-    calib_area->X[UR] = calib_area->display_width - delta_x - 1; calib_area->Y[UR] = delta_y;
-    calib_area->X[LL] = delta_x;                                 calib_area->Y[LL] = calib_area->display_height - delta_y - 1;
-    calib_area->X[LR] = calib_area->display_width - delta_x - 1; calib_area->Y[LR] = calib_area->display_height - delta_y - 1;
+
+    calib_area->X[UL] = delta_x;
+    calib_area->Y[UL] = delta_y;
+
+    calib_area->X[UR] = calib_area->display_width - delta_x - 1;
+    calib_area->Y[UR] = delta_y;
+
+    calib_area->X[LL] = delta_x;
+    calib_area->Y[LL] = calib_area->display_height - delta_y - 1;
+
+    calib_area->X[LR] = calib_area->display_width - delta_x - 1;
+    calib_area->Y[LR] = calib_area->display_height - delta_y - 1;
 
     /* reset calibration if already started */
     reset(calib_area->calibrator);
 }
 
-bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
+bool
+on_expose_event(GtkWidget      *widget,
+                GdkEventExpose *event,
+                gpointer        data)
 {
     struct CalibArea *calib_area = (struct CalibArea*)data;
 
@@ -117,13 +138,15 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
     int width  = calib_area->drawing_area->allocation.width;
     int height = calib_area->drawing_area->allocation.height;
     if (calib_area->calibrator->geometry == NULL &&
-         (calib_area->display_width != width ||
-         calib_area->display_height != height )) {
+        (calib_area->display_width != width ||
+         calib_area->display_height != height ))
+    {
         set_display_size(calib_area, width, height);
     }
 
     GdkWindow *window = gtk_widget_get_window(calib_area->drawing_area);
-    if (window) {
+    if (window)
+    {
         int i;
 
         cairo_t *cr = gdk_cairo_create(window);
@@ -137,7 +160,8 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         double text_height = -1;
         double text_width = -1;
         cairo_text_extents_t extent;
-        for (i = 0; i != HELP_LINES; i++) {
+        for (i = 0; i != HELP_LINES; i++)
+        {
             cairo_text_extents(cr, help_text[i], &extent);
             text_width = MAXIMUM(text_width, extent.width);
             text_height = MAXIMUM(text_height, extent.height);
@@ -152,7 +176,8 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
         /* Print help lines */
         y -= 3;
-        for (i = HELP_LINES-1; i != -1; i--) {
+        for (i = HELP_LINES-1; i != -1; i--)
+        {
             cairo_text_extents(cr, help_text[i], &extent);
             cairo_move_to(cr, x + (text_width-extent.width)/2, y);
             cairo_show_text(cr, help_text[i]);
@@ -161,7 +186,8 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
         cairo_stroke(cr);
 
         /* Draw the points */
-        for (i = 0; i <= calib_area->calibrator->num_clicks; i++) {
+        for (i = 0; i <= calib_area->calibrator->num_clicks; i++)
+        {
             /* set color: already clicked or not */
             if (i < calib_area->calibrator->num_clicks)
                 cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
@@ -193,7 +219,8 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
 
         /* Draw the message (if any) */
-        if (calib_area->message != NULL) {
+        if (calib_area->message != NULL)
+        {
             /* Frame the message */
             cairo_set_font_size(cr, font_size);
             cairo_text_extents_t extent;
@@ -219,10 +246,12 @@ bool on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
     return true;
 }
 
-void redraw(struct CalibArea *calib_area)
+void
+redraw(struct CalibArea *calib_area)
 {
     GdkWindow *win = gtk_widget_get_window(calib_area->drawing_area);
-    if (win) {
+    if (win)
+    {
         GdkRectangle rect;
         rect.x = 0;
         rect.y = 0;
@@ -232,17 +261,20 @@ void redraw(struct CalibArea *calib_area)
     }
 }
 
-bool on_timer_signal(struct CalibArea *calib_area)
+bool
+on_timer_signal(struct CalibArea *calib_area)
 {
     calib_area->time_elapsed += time_step;
-    if (calib_area->time_elapsed > max_time) {
+    if (calib_area->time_elapsed > max_time)
+    {
         gtk_main_quit();
         return false;
     }
 
     /* Update clock */
     GdkWindow *win = gtk_widget_get_window(calib_area->drawing_area);
-    if (win) {
+    if (win)
+    {
         GdkRectangle rect;
         rect.x = calib_area->display_width/2 - clock_radius - clock_line_width;
         rect.y = calib_area->display_height/2 - clock_radius - clock_line_width;
@@ -254,7 +286,10 @@ bool on_timer_signal(struct CalibArea *calib_area)
     return true;
 }
 
-bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data)
+bool
+on_button_press_event(GtkWidget      *widget,
+                      GdkEventButton *event,
+                      gpointer        data)
 {
     struct CalibArea *calib_area = (struct CalibArea*)data;
 
@@ -262,14 +297,14 @@ bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer da
     calib_area->time_elapsed = 0;
     bool success = add_click(calib_area->calibrator, (int)event->x_root, (int)event->y_root);
 
-    if (!success && calib_area->calibrator->num_clicks == 0) {
+    if (!success && calib_area->calibrator->num_clicks == 0)
         draw_message(calib_area, "Mis-click detected, restarting...");
-    } else {
+    else
         draw_message(calib_area, NULL);
-    }
 
     /* Are we done yet? */
-    if (calib_area->calibrator->num_clicks >= 4) {
+    if (calib_area->calibrator->num_clicks >= 4)
+    {
         gtk_main_quit();
         return true;
     }
@@ -280,12 +315,17 @@ bool on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer da
     return true;
 }
 
-void draw_message(struct CalibArea *calib_area, const char* msg)
+void
+draw_message(struct CalibArea *calib_area,
+             const char       *msg)
 {
     calib_area->message = msg;
 }
 
-bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data)
+bool
+on_key_press_event(GtkWidget   *widget,
+                   GdkEventKey *event,
+                   gpointer     data)
 {
     struct CalibArea *calib_area = (struct CalibArea*)data;
 
@@ -299,7 +339,10 @@ bool on_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data)
  * the calibration will be calculated (if possible) and this function
  * will then return ('true' if successful, 'false' otherwise).
  */
-bool run_gui(struct Calib* c, XYinfo *new_axys, bool *swap)
+bool
+run_gui(struct Calib *c,
+        XYinfo       *new_axys,
+        bool         *swap)
 {
     GdkScreen *screen = gdk_screen_get_default();
     /*int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?*/
