@@ -81,9 +81,6 @@ struct Calib
     /* original axys values */
     XYinfo old_axys;
 
-    /* be verbose or not */
-    bool verbose;
-
     /* nr of clicks registered */
     int num_clicks;
 

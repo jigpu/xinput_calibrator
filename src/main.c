@@ -327,7 +327,6 @@ struct Calib* CalibratorXorgPrint(const char* const device_name0, const XYinfo *
 {
     struct Calib* c = (struct Calib*)calloc(1, sizeof(struct Calib));
     c->old_axys = *axys0;
-    c->verbose = verbose0;
     c->threshold_misclick = thr_misclick;
     c->threshold_doubleclick = thr_doubleclick;
     c->geometry = geometry;
