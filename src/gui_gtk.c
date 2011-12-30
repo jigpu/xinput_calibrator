@@ -128,14 +128,9 @@ set_display_size(struct CalibArea *calib_area,
     reset(calib_area->calibrator);
 }
 
-bool
-on_expose_event(GtkWidget      *widget,
-                GdkEventExpose *event,
-                gpointer        data)
+void
+resize_display(struct CalibArea *calib_area)
 {
-    struct CalibArea *calib_area = (struct CalibArea*)data;
-    GdkWindow *window;
-
     /* check that screensize did not change (if no manually specified geometry) */
     GtkAllocation allocation;
     gtk_widget_get_allocation(calib_area->drawing_area, &allocation);
@@ -145,8 +140,16 @@ on_expose_event(GtkWidget      *widget,
     {
         set_display_size(calib_area, allocation.width, allocation.height);
     }
+}
 
-    window = gtk_widget_get_window(calib_area->drawing_area);
+bool
+on_expose_event(GtkWidget      *widget,
+                GdkEventExpose *event,
+                gpointer        data)
+{
+    struct CalibArea *calib_area = (struct CalibArea*)data;
+    GdkWindow *window = gtk_widget_get_window(calib_area->drawing_area);
+
     if (window)
     {
         cairo_t *cr = gdk_cairo_create(window);
@@ -169,6 +172,8 @@ draw(GtkWidget *widget, cairo_t *cr, gpointer data)
     double x;
     double y;
     cairo_text_extents_t extent;
+
+    resize_display(calib_area);
 
     /* Print the text */
     cairo_set_font_size(cr, font_size);

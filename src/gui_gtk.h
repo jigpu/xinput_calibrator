@@ -44,6 +44,7 @@ struct CalibArea* CalibrationArea_      (struct Calib     *c);
 void              set_display_size      (struct CalibArea *calib_area,
                                          int               width,
                                          int               height);
+void              resize_display        (struct CalibArea *calib_area);
 bool              on_expose_event       (GtkWidget        *widget,
                                          GdkEventExpose   *event,
                                          gpointer data);
