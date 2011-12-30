@@ -85,9 +85,9 @@ CalibrationArea_(struct Calib *c)
     }
     if (geo == NULL)
     {
-        int width  = calib_area->drawing_area->allocation.width;
-        int height = calib_area->drawing_area->allocation.height;
-        set_display_size(calib_area, width, height);
+        GtkAllocation allocation;
+        gtk_widget_get_allocation(calib_area->drawing_area, &allocation);
+        set_display_size(calib_area, allocation.width, allocation.height);
     }
 
     /* Setup timer for animation */
@@ -136,13 +136,13 @@ on_expose_event(GtkWidget      *widget,
     GdkWindow *window;
 
     /* check that screensize did not change (if no manually specified geometry) */
-    int width  = calib_area->drawing_area->allocation.width;
-    int height = calib_area->drawing_area->allocation.height;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(calib_area->drawing_area, &allocation);
     if (calib_area->calibrator->geometry == NULL &&
-        (calib_area->display_width != width ||
-         calib_area->display_height != height ))
+        (calib_area->display_width != allocation.width ||
+         calib_area->display_height != allocation.height ))
     {
-        set_display_size(calib_area, width, height);
+        set_display_size(calib_area, allocation.width, allocation.height);
     }
 
     window = gtk_widget_get_window(calib_area->drawing_area);
