@@ -22,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <gtk/gtk.h>
 #include <cairo.h>
 
@@ -365,7 +366,15 @@ run_gui(struct Calib *c,
         XYinfo       *new_axys,
         bool         *swap)
 {
+    bool success;
     struct CalibArea *calib_area = CalibrationArea_(c);
+
+    printf("Current calibration: %d, %d, %d, %d\n",
+           c->old_axys.x_min, 
+           c->old_axys.y_min, 
+           c->old_axys.x_max, 
+           c->old_axys.y_max);
+
     GdkScreen *screen = gdk_screen_get_default();
     GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     GdkRectangle rect;
@@ -385,8 +394,18 @@ run_gui(struct Calib *c,
     gtk_container_add(GTK_CONTAINER(win), calib_area->drawing_area);
     gtk_widget_show_all(win);
 
+    printf("gtk_main entered!\n");
     gtk_main();
+    printf("gtk_main returned!\n");
 
-    return finish(calib_area->calibrator, calib_area->display_width, calib_area->display_height, new_axys, swap);
+    success = finish(calib_area->calibrator, calib_area->display_width, calib_area->display_height, new_axys, swap);
+
+    printf("Final calibration: %d, %d, %d, %d\n",
+           new_axys->x_min, 
+           new_axys->y_min, 
+           new_axys->x_max, 
+           new_axys->y_max);
+
+   return success;
 }
 
