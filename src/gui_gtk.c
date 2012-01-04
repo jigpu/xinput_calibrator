@@ -282,7 +282,9 @@ on_timer_signal(struct CalibArea *calib_area)
     calib_area->time_elapsed += time_step;
     if (calib_area->time_elapsed > max_time)
     {
-        gtk_main_quit();
+        GtkWidget *parent = gtk_widget_get_parent(calib_area->drawing_area);
+        if (parent)
+            gtk_widget_destroy(parent);
         return false;
     }
 
@@ -321,7 +323,9 @@ on_button_press_event(GtkWidget      *widget,
     /* Are we done yet? */
     if (calib_area->calibrator->num_clicks >= 4)
     {
-        gtk_main_quit();
+        GtkWidget *parent = gtk_widget_get_parent(calib_area->drawing_area);
+        if (parent)
+            gtk_widget_destroy(parent);
         return true;
     }
 
@@ -343,7 +347,10 @@ on_key_press_event(GtkWidget   *widget,
                    GdkEventKey *event,
                    gpointer     data)
 {
-    gtk_main_quit();
+    struct CalibArea *calib_area = (struct CalibArea*)data;
+    GtkWidget *parent = gtk_widget_get_parent(calib_area->drawing_area);
+    if (parent)
+        gtk_widget_destroy(parent);
     return true;
 }
 
@@ -363,6 +370,8 @@ run_gui(struct Calib *c,
     GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     GdkRectangle rect;
     /*int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?*/
+
+    g_signal_connect(G_OBJECT(win), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     gdk_screen_get_monitor_geometry(screen, 0, &rect);
 
