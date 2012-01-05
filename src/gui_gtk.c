@@ -279,11 +279,11 @@ bool
 on_timer_signal(struct CalibArea *calib_area)
 {
     GdkWindow *win;
+    GtkWidget *parent = gtk_widget_get_parent(calib_area->drawing_area);
 
     calib_area->time_elapsed += time_step;
-    if (calib_area->time_elapsed > max_time)
+    if (calib_area->time_elapsed > max_time || parent == NULL)
     {
-        GtkWidget *parent = gtk_widget_get_parent(calib_area->drawing_area);
         if (parent)
             gtk_widget_destroy(parent);
         return false;
