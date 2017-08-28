@@ -102,15 +102,9 @@ GuiCalibratorX11::GuiCalibratorX11(Calibrator* calibrator0)
 #endif
 
     // parse geometry string
-    const char* geo = calibrator->get_geometry();
-    if (geo != NULL) {
-        int gw,gh;
-        int res = sscanf(geo,"%dx%d",&gw,&gh);
-        if (res != 2) {
-            fprintf(stderr,"Warning: error parsing geometry string - using defaults.\n");
-        } else {
-            set_display_size( gw, gh );
-        }
+    int gw,gh;
+    if (calibrator->parse_geometry(&gw, &gh)) {
+        set_display_size( gw, gh );
     }
 
     // Register events on the window

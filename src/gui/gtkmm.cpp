@@ -34,19 +34,12 @@ CalibrationArea::CalibrationArea(Calibrator* calibrator0)
     set_flags(Gtk::CAN_FOCUS);
 
     // parse geometry string
-    const char* geo = calibrator->get_geometry();
-    if (geo != NULL) {
-        int gw,gh;
-        int res = sscanf(geo,"%dx%d",&gw,&gh);
-        if (res != 2) {
-            fprintf(stderr,"Warning: error parsing geometry string - using defaults.\n");
-            geo = NULL;
-        } else {
-            set_display_size( gw, gh );
-        }
-    }
-    if (geo == NULL)
+    int gw,gh;
+    if (calibrator->parse_geometry(&gw, &gh)) {
+        set_display_size( gw, gh );
+    } else {
         set_display_size(get_width(), get_height());
+    }
 
     // Setup timer for animation
     if(calibrator->get_use_timeout()){

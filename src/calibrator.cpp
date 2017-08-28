@@ -261,6 +261,26 @@ bool Calibrator::has_xorgconfd_support(Display* dpy) {
     return has_support;
 }
 
+bool Calibrator::parse_geometry(int* width, int* height)
+{
+    const char* geo = this->get_geometry();
+    int gw, gh;
+    int res;
+
+    if (geo == NULL)
+        return false;
+
+    res = sscanf(geo,"%dx%d",&gw,&gh);
+    if (res != 2) {
+        fprintf(stderr,"Warning: error parsing geometry string - using defaults.\n");
+        return false;
+    }
+
+    *width = gw;
+    *height = gh;
+    return true;
+}
+
 /*
  * FROM xf86Xinput.c
  *

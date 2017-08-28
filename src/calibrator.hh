@@ -169,6 +169,9 @@ public:
     const char* get_geometry() const
     { return geometry; }
 
+    /// parse geometry string or return false
+    bool parse_geometry(int* width, int* height);
+
     /// reset clicks
     void reset()
     {  clicked.num = 0; clicked.x.clear(); clicked.y.clear();}
