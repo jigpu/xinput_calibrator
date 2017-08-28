@@ -91,20 +91,22 @@ GuiCalibratorX11::GuiCalibratorX11(Calibrator* calibrator0)
         bool rot = current & RR_Rotate_90 || current & RR_Rotate_270;
         int width = rot ? randrsize->height : randrsize->width;
         int height = rot ? randrsize->width : randrsize->height;
-        set_display_size(width, height);
+        set_display_size(width, height, 0, 0);
     } else {
         set_display_size(DisplayWidth(display, screen_num),
-                         DisplayHeight(display, screen_num));
+                         DisplayHeight(display, screen_num),
+                         0, 0);
     }
 # else
     set_display_size(DisplayWidth(display, screen_num),
-                     DisplayHeight(display, screen_num));
+                     DisplayHeight(display, screen_num),
+                     0, 0);
 #endif
 
     // parse geometry string
-    int gw,gh;
-    if (calibrator->parse_geometry(&gw, &gh)) {
-        set_display_size( gw, gh );
+    int gw,gh,gx,gy;
+    if (calibrator->parse_geometry(&gw, &gh, &gx, &gy)) {
+        set_display_size( gw, gh, gx, gy );
     }
 
     // Register events on the window
@@ -113,7 +115,7 @@ GuiCalibratorX11::GuiCalibratorX11(Calibrator* calibrator0)
     attributes.event_mask = ExposureMask | KeyPressMask | ButtonPressMask;
 
     win = XCreateWindow(display, RootWindow(display, screen_num),
-                0, 0, display_width, display_height, 0,
+                display_x, display_y, display_width, display_height, 0,
                 CopyFromParent, InputOutput, CopyFromParent,
                 CWOverrideRedirect | CWEventMask,
                 &attributes);
@@ -168,9 +170,11 @@ GuiCalibratorX11::~GuiCalibratorX11()
     XCloseDisplay(display);
 }
 
-void GuiCalibratorX11::set_display_size(int width, int height) {
+void GuiCalibratorX11::set_display_size(int width, int height, int x, int y) {
     display_width = width;
     display_height = height;
+    display_x = x;
+    display_y = y;
 
     // Compute absolute circle centers
     const int delta_x = display_width/num_blocks;
@@ -208,7 +212,7 @@ void GuiCalibratorX11::redraw()
         height = DisplayHeight(display, screen_num);
 #endif
         if (display_width != width || display_height != height) {
-            set_display_size(width, height);
+            set_display_size(width, height, 0, 0);
         }
     }
 

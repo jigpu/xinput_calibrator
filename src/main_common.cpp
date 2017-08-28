@@ -189,7 +189,7 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
 
 static void usage(char* cmd, unsigned thr_misclick)
 {
-    fprintf(stderr, "Usage: %s [-h|--help] [-v|--verbose] [--list] [--device <device name or XID or sysfs path>] [--precalib <minx> <maxx> <miny> <maxy>] [--misclick <nr of pixels>] [--output-type <auto|xorg.conf.d|hal|xinput>] [--fake] [--geometry <w>x<h>] [--no-timeout]\n", cmd);
+    fprintf(stderr, "Usage: %s [-h|--help] [-v|--verbose] [--list] [--device <device name or XID or sysfs path>] [--precalib <minx> <maxx> <miny> <maxy>] [--misclick <nr of pixels>] [--output-type <auto|xorg.conf.d|hal|xinput>] [--fake] [--geometry <w>x<h>[+<x>+<y>]] [--no-timeout]\n", cmd);
     fprintf(stderr, "\t-h, --help: print this help message\n");
     fprintf(stderr, "\t-v, --verbose: print debug messages during the process\n");
     fprintf(stderr, "\t--list: list calibratable input devices and quit\n");

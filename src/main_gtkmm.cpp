@@ -31,20 +31,31 @@
 
 int main(int argc, char** argv)
 {
+    int width, height, x, y;
+    bool parsed_geom;
+
     Calibrator* calibrator = Calibrator::make_calibrator(argc, argv);
 
     // GTK-mm setup
     Gtk::Main kit(argc, argv);
 
-    Glib::RefPtr< Gdk::Screen > screen = Gdk::Screen::get_default();
-    //int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?
-    Gdk::Rectangle rect;
-    screen->get_monitor_geometry(0, rect);
+    parsed_geom = calibrator->parse_geometry(&width, &height, &x, &y);
+    if (!parsed_geom) {
+        Glib::RefPtr< Gdk::Screen > screen = Gdk::Screen::get_default();
+        //int num_monitors = screen->get_n_monitors(); TODO, multiple monitors?
+        Gdk::Rectangle rect;
+        screen->get_monitor_geometry(0, rect);
+        width = rect.get_width();
+        height = rect.get_height();
+        x = rect.get_x();
+        y = rect.get_y();
+    }
 
     Gtk::Window win;
     // when no window manager: explicitely take size of full screen
-    win.move(rect.get_x(), rect.get_y());
-    win.resize(rect.get_width(), rect.get_height());
+    win.move(x, y);
+    win.resize(width, height);
+
     // in case of window manager: set as full screen to hide window decorations
     win.fullscreen();
 

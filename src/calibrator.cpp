@@ -261,10 +261,10 @@ bool Calibrator::has_xorgconfd_support(Display* dpy) {
     return has_support;
 }
 
-bool Calibrator::parse_geometry(int* width, int* height)
+bool Calibrator::parse_geometry(int* width, int* height, int* x, int* y)
 {
     const char* geo = this->get_geometry();
-    int gw, gh;
+    int gw, gh, gx, gy;
     int res;
 
     if (geo == NULL)
@@ -276,8 +276,16 @@ bool Calibrator::parse_geometry(int* width, int* height)
         return false;
     }
 
+    res = sscanf(geo, "%*dx%*d+%d+%d",&gx,&gy);
+    if (res != 2) {
+        gx = 0;
+        gy = 0;
+    }
+
     *width = gw;
     *height = gh;
+    *x = gx;
+    *y = gy;
     return true;
 }
 

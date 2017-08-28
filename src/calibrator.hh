@@ -170,7 +170,7 @@ public:
     { return geometry; }
 
     /// parse geometry string or return false
-    bool parse_geometry(int* width, int* height);
+    bool parse_geometry(int* width, int* height, int* x, int* y);
 
     /// reset clicks
     void reset()

@@ -34,11 +34,11 @@ CalibrationArea::CalibrationArea(Calibrator* calibrator0)
     set_flags(Gtk::CAN_FOCUS);
 
     // parse geometry string
-    int gw,gh;
-    if (calibrator->parse_geometry(&gw, &gh)) {
-        set_display_size( gw, gh );
+    int gw,gh,gx,gy;
+    if (calibrator->parse_geometry(&gw, &gh, &gx, &gy)) {
+        set_display_size( gw, gh, gx, gy );
     } else {
-        set_display_size(get_width(), get_height());
+        set_display_size(get_width(), get_height(), 0, 0);
     }
 
     // Setup timer for animation
@@ -48,9 +48,11 @@ CalibrationArea::CalibrationArea(Calibrator* calibrator0)
     }
 }
 
-void CalibrationArea::set_display_size(int width, int height) {
+void CalibrationArea::set_display_size(int width, int height, int x, int y) {
     display_width = width;
     display_height = height;
+    display_x = x;
+    display_y = y;
 
     // Compute absolute circle centers
     const int delta_x = display_width/num_blocks;
@@ -70,7 +72,7 @@ bool CalibrationArea::on_expose_event(GdkEventExpose *event)
     if (calibrator->get_geometry() == NULL &&
          (display_width != get_width() ||
          display_height != get_height()) ) {
-        set_display_size(get_width(), get_height());
+        set_display_size(get_width(), get_height(), 0, 0);
     }
 
     Glib::RefPtr<Gdk::Window> window = get_window();
@@ -206,7 +208,7 @@ bool CalibrationArea::on_button_press_event(GdkEventButton *event)
 {
     // Handle click
     time_elapsed = 0;
-    bool success = calibrator->add_click((int)event->x_root, (int)event->y_root);
+    bool success = calibrator->add_click((int)event->x_root - display_x, (int)event->y_root - display_y);
 
     if (!success && calibrator->get_numclicks() == 0) {
         draw_message("Mis-click detected, restarting...");

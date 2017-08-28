@@ -42,7 +42,7 @@ protected:
     // Data
     Calibrator* calibrator;
     double X[NUM_POINTS], Y[NUM_POINTS];
-    int display_width, display_height;
+    int display_width, display_height, display_x, display_y;
     int time_elapsed;
     std::list<std::string> display_texts;
 
@@ -68,7 +68,7 @@ protected:
     bool on_button_press_event(XEvent event);
 
     // Helper functions
-    void set_display_size(int width, int height);
+    void set_display_size(int width, int height, int x, int y);
     void redraw();
     void draw_message(const char* msg);
 
