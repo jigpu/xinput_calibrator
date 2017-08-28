@@ -53,13 +53,8 @@ AC_ARG_WITH([gui], AS_HELP_STRING([--with-gui=x11], [Use native x11 GUI]))
 AC_MSG_CHECKING([gui])
 AC_MSG_RESULT($with_gui)
 
-AS_IF([test "x$with_gui" = xdefault || test "x$with_gui" = xgtkmm], [
-	PKG_CHECK_MODULES(GTKMM, [gtkmm-2.4], with_gui="gtkmm",
-        [if test "x$with_gui" = xgtkmm; then
-            AC_MSG_ERROR([GTKMM GUI requested, but gtkmm-2.4 not found])
-         fi])
-    AC_SUBST(GTKMM_CFLAGS)
-	AC_SUBST(GTKMM_LIBS)
+AS_IF([test "x$with_gui" = xgtkmm], [
+    AC_MSG_ERROR([GTKMM GUI build not available])
 ])
 AM_CONDITIONAL([BUILD_GTKMM], [test "x$with_gui" = xgtkmm])
 
